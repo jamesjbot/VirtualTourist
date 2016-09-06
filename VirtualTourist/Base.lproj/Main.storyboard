@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="wb7-ae-H4b">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="wb7-ae-H4b">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -62,7 +62,7 @@
                         <outlet property="mapView" destination="nBW-na-7Za" id="l4E-8a-r3Z"/>
                         <outlet property="tapPinsHeight" destination="Umf-ri-YfM" id="Q24-aL-MyD"/>
                         <outlet property="tapPinsToDeleteLabel" destination="hmK-iP-Waw" id="Qcy-qP-Lon"/>
-                        <segue destination="7N6-YO-O8m" kind="show" id="von-1x-Hk6"/>
+                        <segue destination="7N6-YO-O8m" kind="show" identifier="transistionToPhotoGrid" id="von-1x-Hk6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -77,7 +77,7 @@
         <!--PhotoGridView-->
         <scene sceneID="vag-Bh-08Q">
             <objects>
-                <viewController title="PhotoGridView" id="7N6-YO-O8m" sceneMemberID="viewController">
+                <viewController title="PhotoGridView" id="7N6-YO-O8m" customClass="PhotoGridViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="nL0-RG-MHn"/>
                         <viewControllerLayoutGuide type="bottom" id="g1a-Gk-kge"/>
@@ -117,6 +117,10 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <connections>
+                        <outlet property="collectionGrid" destination="FPX-TU-wU2" id="qKL-OU-f23"/>
+                        <outlet property="mapView" destination="QZG-QS-EEl" id="a2X-tf-hhi"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dQx-Tz-j1n" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

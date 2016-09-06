@@ -14,6 +14,10 @@
 		A764ED6C1D6B23D800F759E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A764ED6B1D6B23D800F759E4 /* Assets.xcassets */; };
 		A764ED6F1D6B23D800F759E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A764ED6D1D6B23D800F759E4 /* LaunchScreen.storyboard */; };
 		A77A21E11D78905900AC1A88 /* LaunchImage.png in Resources */ = {isa = PBXBuildFile; fileRef = A77A21E01D78905900AC1A88 /* LaunchImage.png */; };
+		A7BA27351D7CA1070084D067 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA27341D7CA1070084D067 /* CoreDataStack.swift */; };
+		A7BA27391D7CBEE00084D067 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA27371D7CBEE00084D067 /* Pin.swift */; };
+		A7BA273F1D7D07FB0084D067 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA273E1D7D07FB0084D067 /* PhotoGridViewController.swift */; };
+		A7BA277F1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA277E1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +30,10 @@
 		A764ED6E1D6B23D800F759E4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A764ED701D6B23D800F759E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A77A21E01D78905900AC1A88 /* LaunchImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LaunchImage.png; sourceTree = "<group>"; };
+		A7BA27341D7CA1070084D067 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		A7BA27371D7CBEE00084D067 /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Pin.swift; path = ../Pin.swift; sourceTree = "<group>"; };
+		A7BA273E1D7D07FB0084D067 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
+		A7BA277E1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Pin+CoreDataProperties.swift"; path = "../Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,8 +66,10 @@
 		A764ED601D6B23D800F759E4 /* VirtualTourist */ = {
 			isa = PBXGroup;
 			children = (
+				A7BA27401D7D0BD00084D067 /* Controller */,
+				A7BA273A1D7CBEF70084D067 /* Models */,
 				A764ED611D6B23D800F759E4 /* AppDelegate.swift */,
-				A764ED631D6B23D800F759E4 /* MainMapViewController.swift */,
+				A7BA27341D7CA1070084D067 /* CoreDataStack.swift */,
 				A764ED651D6B23D800F759E4 /* Main.storyboard */,
 				A764ED6B1D6B23D800F759E4 /* Assets.xcassets */,
 				A77A21E01D78905900AC1A88 /* LaunchImage.png */,
@@ -68,6 +78,32 @@
 				A764ED681D6B23D800F759E4 /* VirtualTourist.xcdatamodeld */,
 			);
 			path = VirtualTourist;
+			sourceTree = "<group>";
+		};
+		A7BA273A1D7CBEF70084D067 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A7BA273B1D7CBF130084D067 /* Managed Objects */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		A7BA273B1D7CBF130084D067 /* Managed Objects */ = {
+			isa = PBXGroup;
+			children = (
+				A7BA277E1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift */,
+				A7BA27371D7CBEE00084D067 /* Pin.swift */,
+			);
+			name = "Managed Objects";
+			sourceTree = "<group>";
+		};
+		A7BA27401D7D0BD00084D067 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				A764ED631D6B23D800F759E4 /* MainMapViewController.swift */,
+				A7BA273E1D7D07FB0084D067 /* PhotoGridViewController.swift */,
+			);
+			name = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -144,8 +180,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				A764ED641D6B23D800F759E4 /* MainMapViewController.swift in Sources */,
+				A7BA277F1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift in Sources */,
 				A764ED621D6B23D800F759E4 /* AppDelegate.swift in Sources */,
 				A764ED6A1D6B23D800F759E4 /* VirtualTourist.xcdatamodeld in Sources */,
+				A7BA27391D7CBEE00084D067 /* Pin.swift in Sources */,
+				A7BA27351D7CA1070084D067 /* CoreDataStack.swift in Sources */,
+				A7BA273F1D7D07FB0084D067 /* PhotoGridViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
