@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--MainMapView-->
@@ -86,7 +87,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="bEW-Wu-5sg">
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="bEW-Wu-5sg">
                                 <rect key="frame" x="0.0" y="64" width="600" height="537"/>
                                 <subviews>
                                     <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="QZG-QS-EEl">
@@ -113,9 +114,20 @@
                                         </cells>
                                     </collectionView>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstItem="QZG-QS-EEl" firstAttribute="top" secondItem="bEW-Wu-5sg" secondAttribute="top" id="HUZ-2Y-AmF"/>
+                                    <constraint firstItem="QZG-QS-EEl" firstAttribute="leading" secondItem="bEW-Wu-5sg" secondAttribute="leading" id="HY2-FQ-swk"/>
+                                    <constraint firstAttribute="trailing" secondItem="QZG-QS-EEl" secondAttribute="trailing" id="lPt-Tu-Nli"/>
+                                </constraints>
                             </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="bEW-Wu-5sg" firstAttribute="top" secondItem="nL0-RG-MHn" secondAttribute="bottom" id="Gaw-st-Ess"/>
+                            <constraint firstItem="g1a-Gk-kge" firstAttribute="top" secondItem="bEW-Wu-5sg" secondAttribute="bottom" constant="-1" id="Yze-Us-t94"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="bEW-Wu-5sg" secondAttribute="trailing" constant="-20" id="huH-WO-Dlu"/>
+                            <constraint firstItem="bEW-Wu-5sg" firstAttribute="leading" secondItem="DGY-9G-MUI" secondAttribute="leadingMargin" constant="-20" id="inu-kL-AjE"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionGrid" destination="FPX-TU-wU2" id="qKL-OU-f23"/>
