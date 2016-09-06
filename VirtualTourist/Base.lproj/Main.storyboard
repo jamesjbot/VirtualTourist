@@ -75,10 +75,10 @@
             </objects>
             <point key="canvasLocation" x="1069" y="394"/>
         </scene>
-        <!--PhotoGridView-->
+        <!--Photo Album-->
         <scene sceneID="vag-Bh-08Q">
             <objects>
-                <viewController title="PhotoGridView" id="7N6-YO-O8m" customClass="PhotoGridViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Photo Album" id="7N6-YO-O8m" customClass="PhotoGridViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="nL0-RG-MHn"/>
                         <viewControllerLayoutGuide type="bottom" id="g1a-Gk-kge"/>
@@ -96,17 +96,17 @@
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="FPX-TU-wU2">
                                         <rect key="frame" x="0.0" y="152" width="600" height="385"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="wEL-Um-Oal">
-                                            <size key="itemSize" width="50" height="50"/>
+                                            <size key="itemSize" width="190" height="190"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         </collectionViewFlowLayout>
                                         <cells>
                                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="8eE-zf-ras">
-                                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="190" height="190"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="190" height="190"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                 </view>
