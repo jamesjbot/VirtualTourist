@@ -38,11 +38,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // MARK: - UICollectionViewDataSource
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 0
+        return 1
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        return UICollectionViewCell()
+        let cell = collectionGrid.dequeueReusableCellWithReuseIdentifier("Cell", forIndexPath: indexPath)
+        return cell
     }
     
 }

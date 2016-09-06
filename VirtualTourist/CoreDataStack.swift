@@ -64,8 +64,14 @@ class CoreDataStack: NSObject {
             
             // Name the SQL Lite file we are creating
             self.dbURL = docURL.URLByAppendingPathComponent(self.sqlFilename)
+            
+            
+            // Migrate to new DataModel with photoalbum
+            let options = [NSInferMappingModelAutomaticallyOption: true,
+                           NSMigratePersistentStoresAutomaticallyOption: true]
+            
             do {
-                try self.coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.dbURL, options: nil)
+                try self.coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.dbURL, options: options)
                 
             } catch {
                 fatalError("Error migrating store: \(error)")
