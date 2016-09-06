@@ -1,5 +1,5 @@
 //
-//  DetailViewController.swift
+//  PhotoAlbumViewController.swift
 //  VirtualTourist
 //
 //  Created by James Jongsurasithiwat on 9/4/16.
@@ -10,19 +10,19 @@ import Foundation
 import UIKit
 import MapKit
 
-class PhotoGridViewController: UIViewController {
+class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     
-    // MARK: - IBOUTLET
+    // MARK: - IBOutlets
     
     @IBOutlet weak var mapView: MKMapView!
 
     @IBOutlet weak var collectionGrid: UICollectionView!
 
-    // MARK: - VARIABLES
+    // MARK: - Variables
     
     var location: MKAnnotation!
     
-    // MARK: - FUNCTIONS
+    // MARK: - Functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +31,18 @@ class PhotoGridViewController: UIViewController {
         let region = MKCoordinateRegionMake(location.coordinate , span)
         mapView.setRegion(region, animated: true)
         mapView.addAnnotation(location)
+        collectionGrid.dataSource = self
         
     }
+    
+    // MARK: - UICollectionViewDataSource
+    
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 0
+    }
+    
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        return UICollectionViewCell()
+    }
+    
 }

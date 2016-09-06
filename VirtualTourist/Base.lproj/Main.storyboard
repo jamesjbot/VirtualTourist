@@ -78,7 +78,7 @@
         <!--Photo Album-->
         <scene sceneID="vag-Bh-08Q">
             <objects>
-                <viewController title="Photo Album" id="7N6-YO-O8m" customClass="PhotoGridViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Photo Album" id="7N6-YO-O8m" customClass="PhotoAlbumViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="nL0-RG-MHn"/>
                         <viewControllerLayoutGuide type="bottom" id="g1a-Gk-kge"/>

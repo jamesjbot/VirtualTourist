@@ -149,8 +149,8 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.destinationViewController is PhotoGridViewController {
-            let pgvc = segue.destinationViewController as! PhotoGridViewController
+        if segue.destinationViewController is PhotoAlbumViewController {
+            let pgvc = segue.destinationViewController as! PhotoAlbumViewController
             pgvc.location = zoomToAnnotation
         }
     }

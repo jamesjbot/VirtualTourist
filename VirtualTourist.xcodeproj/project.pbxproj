@@ -16,7 +16,7 @@
 		A77A21E11D78905900AC1A88 /* LaunchImage.png in Resources */ = {isa = PBXBuildFile; fileRef = A77A21E01D78905900AC1A88 /* LaunchImage.png */; };
 		A7BA27351D7CA1070084D067 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA27341D7CA1070084D067 /* CoreDataStack.swift */; };
 		A7BA27391D7CBEE00084D067 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA27371D7CBEE00084D067 /* Pin.swift */; };
-		A7BA273F1D7D07FB0084D067 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA273E1D7D07FB0084D067 /* PhotoGridViewController.swift */; };
+		A7BA273F1D7D07FB0084D067 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA273E1D7D07FB0084D067 /* PhotoAlbumViewController.swift */; };
 		A7BA277F1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA277E1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
@@ -32,7 +32,7 @@
 		A77A21E01D78905900AC1A88 /* LaunchImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LaunchImage.png; sourceTree = "<group>"; };
 		A7BA27341D7CA1070084D067 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		A7BA27371D7CBEE00084D067 /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Pin.swift; path = ../Pin.swift; sourceTree = "<group>"; };
-		A7BA273E1D7D07FB0084D067 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
+		A7BA273E1D7D07FB0084D067 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 		A7BA277E1D7E1D9C0084D067 /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Pin+CoreDataProperties.swift"; path = "../Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,7 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				A764ED631D6B23D800F759E4 /* MainMapViewController.swift */,
-				A7BA273E1D7D07FB0084D067 /* PhotoGridViewController.swift */,
+				A7BA273E1D7D07FB0084D067 /* PhotoAlbumViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -185,7 +185,7 @@
 				A764ED6A1D6B23D800F759E4 /* VirtualTourist.xcdatamodeld in Sources */,
 				A7BA27391D7CBEE00084D067 /* Pin.swift in Sources */,
 				A7BA27351D7CA1070084D067 /* CoreDataStack.swift in Sources */,
-				A7BA273F1D7D07FB0084D067 /* PhotoGridViewController.swift in Sources */,
+				A7BA273F1D7D07FB0084D067 /* PhotoAlbumViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
