@@ -116,6 +116,9 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
         mapView.setNeedsDisplay()
         // Add persistent Pins
         mapView.addAnnotations(loadCoreData())
+        
+        // Need to make sure when I return from a show segue that Virtual Tourist is the name and not OK
+        navigationController?.navigationBar.topItem?.title = "Virtual Tourist"
     }
     
     func save() {
@@ -152,6 +155,8 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
         if segue.destinationViewController is PhotoAlbumViewController {
             let pgvc = segue.destinationViewController as! PhotoAlbumViewController
             pgvc.location = zoomToAnnotation
+            // When in the PhotoAlbumView controller the back button should say OK
+            navigationController?.navigationBar.topItem?.title = "OK"
         }
     }
     
