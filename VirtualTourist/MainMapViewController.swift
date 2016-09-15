@@ -153,8 +153,8 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.destinationViewController is PhotoAlbumViewController {
-            let pgvc = segue.destinationViewController as! PhotoAlbumViewController
-            pgvc.location = zoomToAnnotation
+            let destinationVC = segue.destinationViewController as! PhotoAlbumViewController
+            destinationVC.location = zoomToAnnotation
             // When in the PhotoAlbumView controller the back button should say OK
             navigationController?.navigationBar.topItem?.title = "OK"
         }

@@ -21,6 +21,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     let PHOTOALBUMCELLIDENTIFIER = "PVCell"
     private var sectionInsets = UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50)
     private let minimumSpacing = CGFloat(10)
+    private let flickrClient = FlickrClient.sharedInstance()
+    
     // MARK: - IBOutlets
     
     @IBOutlet weak var mapView: MKMapView!
@@ -30,6 +32,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // MARK: - Variables
     
     var location: MKAnnotation!
+    
     private var sizeOfCell: CGFloat!
     
     // MARK: - Functions
@@ -53,6 +56,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         flowLayout.minimumLineSpacing = minimumSpacing
         collectionGrid.collectionViewLayout = flowLayout
         
+        flickrClient.searchForPicturesByLatLon(location){
+            (success, error) -> Void in
+            if success {
+                print("completed latlon search")
+            }
+        }
     }
     
     
