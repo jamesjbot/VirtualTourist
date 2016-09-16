@@ -9,8 +9,9 @@
 import Foundation
 import UIKit
 import MapKit
+import CoreData
 
-class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
+class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
     // MARK: - Debug statements
     
@@ -31,23 +32,57 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 
     // MARK: - Variables
     
-    var location: MKAnnotation!
+    var location: Pin!
     
     private var sizeOfCell: CGFloat!
     
+    var fetchedResultsController : NSFetchedResultsController?
+    
     // MARK: - Functions
+    
+    func testingDeleteAllPhotos() {
+        //Slow one by one way
+        let slowWAy = true
+        if slowWAy {
+            executeFetchResultsController()
+            for photo in (fetchedResultsController?.fetchedObjects)! {
+                let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
+                (appDel.stack?.context)!.deleteObject(photo as! Photo)
+            }
+            
+
+        } else { // fast way delete everything EVEN THE PINS
+            let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
+            (appDel.stack?.context)!.deletedObjects
+        }
+
+        
+        
+        
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Testing
+        testingDeleteAllPhotos()
+        
         // Zoom to a comfortable level
         let span = MKCoordinateSpanMake(3 , 3)
-        let region = MKCoordinateRegionMake(location.coordinate , span)
+        let cll = CLLocationCoordinate2D(latitude: location.latitude as! Double, longitude: location.longitude as! Double)
+        let region = MKCoordinateRegionMake(cll, span)
         mapView.setRegion(region, animated: true)
-        mapView.addAnnotation(location)
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: location.latitude as! Double, longitude: location.longitude as! Double)
+        mapView.addAnnotation(annotation)
         
         setDeviceSpecificSizeOfCell()
         
         collectionGrid.dataSource = self
+        
+        executeFetchResultsController()
         
         // Set size of cells on the collectionview
         let flowLayout = UICollectionViewFlowLayout()
@@ -56,7 +91,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         flowLayout.minimumLineSpacing = minimumSpacing
         collectionGrid.collectionViewLayout = flowLayout
         
-        flickrClient.searchForPicturesByLatLon(location){
+        flickrClient.searchForPicturesByLatLonByPin(location){
             (success, error) -> Void in
             if success {
                 print("completed latlon search")
@@ -64,10 +99,27 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         }
     }
     
+    func executeFetchResultsController(){
+        print("initializeFetchResultsController Called")
+        let request = NSFetchRequest(entityName: "Photo")
+        request.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
+        let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
+        let moc = appDel.stack?.context
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: moc!, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController?.delegate = self
+        do {
+            try fetchedResultsController?.performFetch()
+            print("Number of objects retrieved with fetch request \(fetchedResultsController?.fetchedObjects?.count)")
+        } catch {
+            fatalError("Failed to initialize FetchedResultsControler \(error)")
+        }
+        print("exiting initializefetchrequest")
+    }
+    
     
     func setDeviceSpecificSizeOfCell(){
-        print("The size of frame width is \(view.frame.width)")
-        print("The size of the bounds is \(view.bounds)")
+        //print("The size of frame width is \(view.frame.width)")
+        //print("The size of the bounds is \(view.bounds)")
         self.sizeOfCell = (view.frame.width - 2*minimumSpacing)/3
         //self.sizeOfCell = view.frame.width
     }
@@ -76,16 +128,69 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // TODO Temporarily marked the max number of images
-        return 21
+        // This should return the size of the model
+        // So a fetchrequest would work
+        return (fetchedResultsController?.fetchedObjects?.count)!
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        print("Dequeuing a UICell and inserting Incoming indexPath \(indexPath)")
+        let photo = fetchedResultsController?.objectAtIndexPath(indexPath) as! Photo
+        
+        //print("Dequeuing a UICell and inserting Incoming indexPath \(indexPath)")
         let cell = collectionGrid.dequeueReusableCellWithReuseIdentifier(PHOTOALBUMCELLIDENTIFIER, forIndexPath: indexPath) as! PhotoViewCell
-        cell.imageView.image = nil
-        cell.activityIndic.startAnimating()
+        
+        if photo.imageData == nil {
+            cell.activityIndic.hidden = false
+            cell.activityIndic.startAnimating()
+        } else {
+            cell.activityIndic.hidden = true
+            cell.activityIndic.stopAnimating()
+            cell.imageView.image = UIImage(data: photo.imageData!)
+        }
+        
+
+
         return cell
     }
 
+    // MARK: NSFetchedResultsControllerDelegate methods
+    
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        print("controllerWillChangeContent called")
+    }
+    
+    
+    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
+        print("controller did change section called")
+    }
+    
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        print("Did change object called Old path:\(indexPath?.row) New path:\(newIndexPath?.row)! object: anObject")
+        print("The type is: \(type.rawValue))")
+        switch (type){
+        case .Insert:
+            print("this is an insert")
+            collectionGrid.reloadData()
+        case .Delete:
+            print("this is a delete")
+            collectionGrid.reloadData()
+        case .Update:
+            print("this is an update")
+        case .Move:
+            print("this is a move")
+            collectionGrid.reloadData()
+        }
+    }
+    
+    // MARK: - NSFetchedResultsControllerDelegate
+    
+    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        print("Controller Did Change Content fired")
+    }
+    
 }
 
+extension PhotoAlbumViewController {
+    
+
+}

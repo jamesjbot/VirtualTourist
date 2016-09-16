@@ -9,11 +9,13 @@
 import Foundation
 import UIKit
 import MapKit
+import CoreData
 
 class FlickrClient {
     
-    
     // MARK: Singleton
+    
+    private let context: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.context)!
     
     private init(){}
     
@@ -25,7 +27,7 @@ class FlickrClient {
     }
     
     
-    func searchForPicturesByLatLon(location: MKAnnotation ,completionHandlerTopLevel: (success: Bool, error: NSError?) -> Void ) {
+    func searchForPicturesByLatLonByPin(location: Pin ,completionHandlerTopLevel: (success: Bool, error: NSError?) -> Void ) {
         let methodParameters = [
             Constants.FlickrParameterKeys.Method : Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey : Constants.FlickrParameterValues.APIKey,
@@ -33,9 +35,10 @@ class FlickrClient {
             Constants.FlickrParameterKeys.Extras : Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format : Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback : Constants.FlickrParameterValues.DisableJSONCallback,
-            Constants.FlickrParameterKeys.Lat : location.coordinate.latitude.description,
-            Constants.FlickrParameterKeys.Lon : location.coordinate.longitude.description
-        ]
+        //print("THe type of methodsparams is \(methodParameters.dynamicType)")
+            Constants.FlickrParameterKeys.Lat : location.latitude!,
+            Constants.FlickrParameterKeys.Lon : location.longitude!
+       ]
         let searchURL = createURLFromParameters(methodParameters)
         let searchRequest = NSURLRequest(URL: searchURL)
         let session = NSURLSession.sharedSession()
@@ -57,9 +60,23 @@ class FlickrClient {
                     print("this may be an array")
                     let photosElement = dict!["photos"]
                     let photoArray = photosElement!["photo"] as! [[String:AnyObject]]
+                    var photoCounter = 0
                     for photo in photoArray {
+                        photoCounter += 1
+                        if photoCounter > Constants.Flickr.MaximumImages {
+                            print("exiting loop")
+                            break
+                        }
                         // TODO Construct photo and put into CoreData
+                        let tempPhoto = Photo(image: nil, context: self.context)
+                        do {
+                            try self.context.save()
+                        } catch let error {
+                            print("there was an error saving image \(error)")
+                        }
+                        self.downloadImage(self.constructImageURL(photo),forPin: location, updateMangedObject: tempPhoto.objectID)
                     }
+                    //self.downloadImage(self.constructImageURL(photoArray[0]),forPin: location)
                     // Notify caller of task completion
                     completionHandlerTopLevel(success: true, error: nil)
                     return
@@ -68,6 +85,42 @@ class FlickrClient {
         }
         task.resume()
     }
+    
+    private func downloadImage( aturl: NSURL, forPin: Pin, updateMangedObject: NSManagedObjectID) {
+        let session = NSURLSession.sharedSession()
+        //let request = NSURLRequest(URL: url)
+        let task = session.dataTaskWithURL(aturl){
+            (data, response, error) -> Void in
+            //print("Finshed downloading images \(response)")
+            if error == nil {
+                //print(data)
+                //print("The absolute path is \(url?.absoluteString)!")
+                //print(url.)
+                //let imageURL = data?.absoluteString
+                if data == nil {
+                    //print("Image data is nil, the type is \(data.dynamicType)")
+                }
+                //let image = UIImage(data: data!)
+                
+                //print(image)
+                //let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                print("Adding photo to context")
+                //let context = (appDelegate.stack?.context)!
+                let photoForUpdate = self.context.objectWithID(updateMangedObject) as! Photo
+                photoForUpdate.pin = forPin
+                photoForUpdate.imageData = data
+                do {
+                    try self.context.save()
+                } catch {
+                    print("there was an error saving image")
+                }
+            }
+        }
+        task.resume()
+        //Photo(input: floatingAnnotation, context: (appDelegate.stack?.context)!)
+
+    }
+    
     
     private func constructImageURL(photo: [String : AnyObject]) -> NSURL {
         let farm = photo["farm"]!
@@ -82,8 +135,8 @@ class FlickrClient {
         var parsedResult: NSDictionary
         do {
             parsedResult = try NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments) as! NSDictionary
-            print("Here is the answer")
-            print(parsedResult)
+            //print("Here is the answer")
+            //print(parsedResult)
             completionHandlerForParsingData(parsedDictinary: parsedResult, error: nil)
             return
         } catch {
@@ -158,7 +211,8 @@ extension FlickrClient {
             static let APIScheme = "https"
             static let APIHost = "api.flickr.com"
             static let APIPath = "/services/rest"
-            static let ImageSize = "m"
+            static let ImageSize = "h"
+            static let MaximumImages = 21
             
         }
         

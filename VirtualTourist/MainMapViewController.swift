@@ -23,7 +23,16 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     
     var floatingAnnotation: MKAnnotation!
     
+    
+    // TODO: Do you still need this
     var zoomToAnnotation: MKAnnotation!
+    
+    // Redundant
+    var zoomToPin: Pin!
+    
+    // TODO: Make this part of the model?
+    // Pins Stored
+    var allPins: [Pin] = [Pin]()
     
     // MARK: IBOutlets
     @IBOutlet weak var tapPinsHeight: NSLayoutConstraint!
@@ -114,6 +123,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
         // Remove annotation from snapshot view
         mapView.removeAnnotations(mapView.annotations)
         mapView.setNeedsDisplay()
+        
         // Add persistent Pins
         mapView.addAnnotations(loadCoreData())
         
@@ -134,17 +144,25 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     
     // Function to call ManagedObjectContext and fetch stored objects
     func loadCoreData() -> [MKAnnotation] {
+        print("Attempting to load persistent data")
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         let moc = appDelegate.stack?.context
         let pinFetch = NSFetchRequest(entityName: "Pin")
         do {
-            let fetchedPins = try moc!.executeFetchRequest(pinFetch) as! [Pin]
+            print("Trying")
+            var fetchedPins = try moc!.executeFetchRequest(pinFetch) as! [Pin]
+            fetchedPins = try moc!.executeFetchRequest(pinFetch) as! [Pin]
             var annotations : [MKAnnotation] = []
+            print("Found this many pins \(fetchedPins.count)")
             for pin in fetchedPins {
                 let annotation = MKPointAnnotation()
                 annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude as! Double, longitude: pin.longitude as! Double)
                 annotations.append(annotation)
+                // Save all the pins encountered
+                allPins.append(pin)
+                print("Hi appending pin")
             }
+            print("Finished loadcoreData")
             return annotations
         } catch {
             fatalError("Failed to fetch pins: \(error)")
@@ -154,7 +172,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.destinationViewController is PhotoAlbumViewController {
             let destinationVC = segue.destinationViewController as! PhotoAlbumViewController
-            destinationVC.location = zoomToAnnotation
+            destinationVC.location = zoomToPin
             // When in the PhotoAlbumView controller the back button should say OK
             navigationController?.navigationBar.topItem?.title = "OK"
         }
@@ -164,11 +182,23 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         // Save the annotation for injection into the target segue
-        zoomToAnnotation = view.annotation
+        //print("Do you still need this")
+        //zoomToAnnotation = view.annotation
+        zoomToPin = findPinFromAnnotationView(view)
+        
         performSegueWithIdentifier("transistionToPhotoGrid", sender: self)
     }
 
-    
+    // Find exact in selected
+    func findPinFromAnnotationView(view: MKAnnotationView) -> Pin? {
+        for pin in allPins {
+            if view.annotation?.coordinate.latitude == pin.latitude && view.annotation?.coordinate.longitude == pin.longitude {
+                    zoomToPin = pin
+                return pin
+            }
+        }
+        return nil
+    }
     
 }
 
