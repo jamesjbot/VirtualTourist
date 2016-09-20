@@ -13,9 +13,17 @@ import CoreData
 
 class FlickrClient {
     
+    
+    // MARK: Variables
+    let appdel = UIApplication.sharedApplication().delegate as! AppDelegate
+    var photoSearchResultsArray : [[String:AnyObject]] = [[String:AnyObject]]()
+    //var pinLocation: Pin?
+    var urlPhotoID = [NSURL:NSManagedObjectID]()
+    
     // MARK: Singleton
     
     private let context: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.context)!
+    private let backgroundContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.backgroundContext)!
     
     private init(){}
     
@@ -28,6 +36,9 @@ class FlickrClient {
     
     
     func searchForPicturesByLatLonByPin(location: Pin ,completionHandlerTopLevel: (success: Bool, error: NSError?) -> Void ) {
+    
+        //self.pinLocation = location
+        
         let methodParameters = [
             Constants.FlickrParameterKeys.Method : Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey : Constants.FlickrParameterValues.APIKey,
@@ -35,10 +46,11 @@ class FlickrClient {
             Constants.FlickrParameterKeys.Extras : Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format : Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback : Constants.FlickrParameterValues.DisableJSONCallback,
-        //print("THe type of methodsparams is \(methodParameters.dynamicType)")
+        //print("\(#function) \(#line)THe type of methodsparams is \(methodParameters.dynamicType)")
             Constants.FlickrParameterKeys.Lat : location.latitude!,
             Constants.FlickrParameterKeys.Lon : location.longitude!
        ]
+        
         let searchURL = createURLFromParameters(methodParameters)
         let searchRequest = NSURLRequest(URL: searchURL)
         let session = NSURLSession.sharedSession()
@@ -55,28 +67,9 @@ class FlickrClient {
                         completionHandlerTopLevel(success: false, error: error)
                         return
                     }
-                    print(dict.dynamicType)
                     // Perform model updates
-                    print("this may be an array")
                     let photosElement = dict!["photos"]
-                    let photoArray = photosElement!["photo"] as! [[String:AnyObject]]
-                    var photoCounter = 0
-                    for photo in photoArray {
-                        photoCounter += 1
-                        if photoCounter > Constants.Flickr.MaximumImages {
-                            print("exiting loop")
-                            break
-                        }
-                        // TODO Construct photo and put into CoreData
-                        let tempPhoto = Photo(image: nil, context: self.context)
-                        do {
-                            try self.context.save()
-                        } catch let error {
-                            print("there was an error saving image \(error)")
-                        }
-                        self.downloadImage(self.constructImageURL(photo),forPin: location, updateMangedObject: tempPhoto.objectID)
-                    }
-                    //self.downloadImage(self.constructImageURL(photoArray[0]),forPin: location)
+                    self.photoSearchResultsArray = photosElement!["photo"] as! [[String:AnyObject]]
                     // Notify caller of task completion
                     completionHandlerTopLevel(success: true, error: nil)
                     return
@@ -86,34 +79,62 @@ class FlickrClient {
         task.resume()
     }
     
-    private func downloadImage( aturl: NSURL, forPin: Pin, updateMangedObject: NSManagedObjectID) {
+    func populateCoreDataWithSearchResults(completionHandler: (success: Bool, error: NSError?) -> Void ){
+        // Add photos to core data
+        for element in photoSearchResultsArray {
+            dispatch_async(dispatch_get_main_queue()){
+                () -> Void in
+                self.prt(#file, line: #line, msg: "Creating coredataphoto next")
+                let _ = Photo(image: nil, url: self.constructImageURL(element),  context: self.context)
+                self.prt(#file, line: #line, msg: "After creating coredataphoto")
+                do {                    try self.context.save()
+                    print("\(#function) \(#line)Coredata save changes committed")
+
+                } catch let error {
+                    print("\(#function) \(#line)\(#line) Error saving placeholders in coredata\(error) ")
+                    completionHandler(success: false,error: nil)
+                }
+            }
+        }
+        print("\(#function) \(#line) Completed Iterating thru photoSearchResults doesn't mean I completed adding elements to coredata")
+        let frc = sanityCheck()
+        print("Before saving FRC now has \(frc.fetchedObjects?.count)")
+        do {
+            try appdel.stack?.saveContext()
+        } catch let error {
+            print("Some error occured during saving background context \(error)")
+        }
+        print("After saving FRC now has \(frc.fetchedObjects?.count)")
+        completionHandler(success: true, error: nil)
+    }
+    
+    func downloadImage( aturl: NSURL, forPin: Pin, updateMangedObjectID: NSManagedObjectID) {
         let session = NSURLSession.sharedSession()
         //let request = NSURLRequest(URL: url)
         let task = session.dataTaskWithURL(aturl){
             (data, response, error) -> Void in
-            //print("Finshed downloading images \(response)")
+            //print("\(#function) \(#line)Finshed downloading images \(response)")
             if error == nil {
-                //print(data)
-                //print("The absolute path is \(url?.absoluteString)!")
-                //print(url.)
-                //let imageURL = data?.absoluteString
+                self.prt(#function, line: #line, msg: "-----------------> Attempting to put image in to Coredata")
                 if data == nil {
-                    //print("Image data is nil, the type is \(data.dynamicType)")
+                    print("\(#function) \(#line)Image data is nil, the type is \(data.dynamicType)")
+                    fatalError("Data returned nil")
                 }
                 //let image = UIImage(data: data!)
                 
                 //print(image)
                 //let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                print("Adding photo to context")
+                print("\(#function) \(#line)===========>\(#function) Adding photo to context")
                 //let context = (appDelegate.stack?.context)!
-                let photoForUpdate = self.context.objectWithID(updateMangedObject) as! Photo
-                photoForUpdate.pin = forPin
-                photoForUpdate.imageData = data
-                do {
-                    try self.context.save()
-                } catch {
-                    print("there was an error saving image")
-                }
+                    let photoForUpdate = self.context.objectWithID(updateMangedObjectID)
+                    photoForUpdate.setValue(data, forKey: "imageData")
+                    photoForUpdate.setValue(forPin, forKey: "pin")
+                    do {
+                        try self.context.save()
+                        print("\(#function) \(#line)-----------------> Successfully added images to coredata")
+                    } catch let error {
+                        print("\(#function) \(#line)\(#line) \(#file) \n Error saving context \(error)")
+                    }
             }
         }
         task.resume()
@@ -135,7 +156,7 @@ class FlickrClient {
         var parsedResult: NSDictionary
         do {
             parsedResult = try NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments) as! NSDictionary
-            //print("Here is the answer")
+            //print("\(#function) \(#line)Here is the answer")
             //print(parsedResult)
             completionHandlerForParsingData(parsedDictinary: parsedResult, error: nil)
             return
@@ -201,8 +222,38 @@ class FlickrClient {
     }
     
     
+    func sanityCheck() -> NSFetchedResultsController {
+        print("\(#function) \(#line)executeFetchResultsController() Called")
+        let request = NSFetchRequest(entityName: "Photo")
+        request.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
+        // For debugging
+        request.sortDescriptors = []
+        let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
+        let moc = appDel.stack?.backgroundContext
+        let frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: moc!, sectionNameKeyPath: nil, cacheName: nil)
+        
+        do {
+            try frc.performFetch()
+            print("\(#function) \(#line)Number of objects retrieved with fetch request \(frc.fetchedObjects?.count)")
+        } catch {
+            fatalError("Failed to initialize FetchedResultsControler \(error)")
+        }
+        print("\(#function) \(#line)exiting initializefetchrequest")
+        return frc
+    }
+    
 }
 
+extension FlickrClient {
+    func prt(file: String, line: Int, msg: String){
+        for index in file.characters.indices {
+            if file[index] == "/" && !file.substringFromIndex(index.successor()).containsString("/"){
+                let filename = file.substringFromIndex(index.successor())
+                print("\(filename) \(line) \(msg)")
+            }
+        }
+    }
+}
 
 extension FlickrClient {
     struct Constants {
@@ -211,9 +262,8 @@ extension FlickrClient {
             static let APIScheme = "https"
             static let APIHost = "api.flickr.com"
             static let APIPath = "/services/rest"
-            static let ImageSize = "h"
-            static let MaximumImages = 21
-            
+            static let ImageSize = "m"
+            static let MaximumShownImages = 21
         }
         
         // MARK: Flickr Parameter Keys

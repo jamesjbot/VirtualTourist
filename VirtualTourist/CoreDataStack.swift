@@ -14,12 +14,14 @@ class CoreDataStack: NSObject {
     
     // MARK: - Variables
     private var model: NSManagedObjectModel!
-    private var coordinator: NSPersistentStoreCoordinator!
+    private var mainStoreCoordinator: NSPersistentStoreCoordinator!
     private var modelURL: NSURL!
     private var dbURL: NSURL!
     //private var persistentContext: NSManagedObjectContext!
     //private var backgroundCentext : NSManagedObjectContext!
     var context: NSManagedObjectContext! //in Udacity code we call this context
+    var backgroundContext : NSManagedObjectContext!
+    
     
     // MARK: - Initializers
     init?(modelName: String) {
@@ -29,6 +31,7 @@ class CoreDataStack: NSObject {
             fatalError("Error loading model from bundle")
         }
         
+        print("Model url found \(modelURL)")
         // Save the modelURL
         self.modelURL = modelURL
         
@@ -37,21 +40,28 @@ class CoreDataStack: NSObject {
             fatalError("Error initializing mom from: \(modelURL)")
         }
         
+        print("Managed Object model created")
+        
         // Save the managedObjectModel
         self.model = mom
         
         // Create the persistent store coordinator
-        coordinator = NSPersistentStoreCoordinator(managedObjectModel: mom)
+        mainStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: mom)
         
-        // Create Managed Ojbect Context
+        // Create Managed Ojbect Context running on the MainQueue
         context = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
-        
         // Assign coordinator to context
-        context.persistentStoreCoordinator = coordinator
+        context.persistentStoreCoordinator = mainStoreCoordinator
+        
+        backgroundContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+        backgroundContext.parentContext = context
+
         
         
         // Add an SQL lite store in the documents folder
         // Create the SQL Store in the background
+        //dispatch_sync(dispatch_get_main_queue()){
+        print("Dispatching jobs to grab file")
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
             // get the documents directory.
             let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
@@ -65,13 +75,15 @@ class CoreDataStack: NSObject {
             // Name the SQL Lite file we are creating
             self.dbURL = docURL.URLByAppendingPathComponent(self.sqlFilename)
             
-            
+
             // Migrate to new DataModel with photoalbum
             let options = [NSInferMappingModelAutomaticallyOption: true,
                            NSMigratePersistentStoresAutomaticallyOption: true]
             
             do {
-                try self.coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.dbURL, options: options)
+                print("Trying to add persistent store")
+                try self.mainStoreCoordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.dbURL, options: options)
+                print("Successfully added persistent Store")
                 
             } catch {
                 fatalError("Error migrating store: \(error)")
@@ -85,7 +97,9 @@ extension CoreDataStack {
     func saveContext() throws{
         if context.hasChanges{
             do {
+                try backgroundContext.save()
                 try context.save()
+                
             } catch {
                 print("From coredatastack failed to saveContext")
             }
@@ -97,6 +111,9 @@ extension CoreDataStack {
         print("deleted objects \(context.deletedObjects)")
         print("inserted objects \(context.insertedObjects)")
         print("updated objects \(context.updatedObjects)")
+        print("deleted objects \(backgroundContext.deletedObjects)")
+        print("inserted objects \(backgroundContext.insertedObjects)")
+        print("updated objects \(backgroundContext.updatedObjects)")
     }
     
 }

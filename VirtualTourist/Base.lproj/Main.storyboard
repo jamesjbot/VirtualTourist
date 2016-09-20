@@ -114,7 +114,7 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8fS-4U-fn7">
-                                                            <rect key="frame" x="11" y="11" width="168" height="168"/>
+                                                            <rect key="frame" x="9" y="9" width="172" height="172"/>
                                                             <color key="backgroundColor" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                         </imageView>
                                                         <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="pd1-N5-2b0">
@@ -125,13 +125,13 @@
                                                 </view>
                                                 <color key="backgroundColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="bottomMargin" secondItem="8fS-4U-fn7" secondAttribute="bottom" constant="3" id="6R2-Gw-I3W"/>
+                                                    <constraint firstAttribute="bottomMargin" secondItem="8fS-4U-fn7" secondAttribute="bottom" constant="1" id="6R2-Gw-I3W"/>
                                                     <constraint firstItem="8fS-4U-fn7" firstAttribute="centerY" secondItem="8eE-zf-ras" secondAttribute="centerY" id="B5Q-Nn-QBZ"/>
                                                     <constraint firstItem="pd1-N5-2b0" firstAttribute="centerY" secondItem="8eE-zf-ras" secondAttribute="centerY" id="FcD-lg-PHS"/>
-                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="top" secondItem="8eE-zf-ras" secondAttribute="topMargin" constant="3" id="NMk-8D-NPJ"/>
+                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="top" secondItem="8eE-zf-ras" secondAttribute="topMargin" constant="1" id="NMk-8D-NPJ"/>
                                                     <constraint firstItem="pd1-N5-2b0" firstAttribute="centerX" secondItem="8eE-zf-ras" secondAttribute="centerX" id="NzD-0g-MnH"/>
-                                                    <constraint firstAttribute="trailingMargin" secondItem="8fS-4U-fn7" secondAttribute="trailing" constant="3" id="Wwg-pw-yWo"/>
-                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="leading" secondItem="8eE-zf-ras" secondAttribute="leadingMargin" constant="3" id="aw9-1o-nff"/>
+                                                    <constraint firstAttribute="trailingMargin" secondItem="8fS-4U-fn7" secondAttribute="trailing" constant="1" id="Wwg-pw-yWo"/>
+                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="leading" secondItem="8eE-zf-ras" secondAttribute="leadingMargin" constant="1" id="aw9-1o-nff"/>
                                                     <constraint firstItem="8fS-4U-fn7" firstAttribute="centerX" secondItem="8eE-zf-ras" secondAttribute="centerX" id="zLg-qX-4Ah"/>
                                                 </constraints>
                                                 <connections>
