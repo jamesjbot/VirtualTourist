@@ -24,6 +24,8 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     var floatingAnnotation: MKAnnotation!
     
     
+    
+    
     // TODO: Do you still need this
     var zoomToAnnotation: MKAnnotation!
     
@@ -52,19 +54,41 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
         if editingEnabled {
             editingEnabled = false
             // Remove Tap Pins label from view
-            UIView.animateWithDuration(1.0, delay: 0.0, options: [], animations: {
+            UIView.animateWithDuration(0.3, delay: 0.0, options: [], animations: {
                 self.tapPinsHeight.constant = 0
                 self.view.layoutIfNeeded()
                 }, completion: nil)
         } else {
             editingEnabled = true
             // Show Tap Pins label in view
-            UIView.animateWithDuration(1.0, delay: 0.0, options: [], animations: {
+            UIView.animateWithDuration(0.3, delay: 0.0, options: [], animations: {
                 self.tapPinsHeight.constant = self.tapPinsLabelHeight
                 self.view.layoutIfNeeded()
                 }, completion: nil)
         }
     }
+    
+
+    
+    func deletePinInCoreData(at location: CLLocationCoordinate2D){
+        
+        let fetchedPins = getPinArray()
+        for pin in fetchedPins! {
+            if pin.latitude == location.latitude && pin.longitude == location.longitude {
+                    let context  = (UIApplication.sharedApplication().delegate as! AppDelegate).stack?.context
+                do {
+                    context!.deleteObject(pin)
+                    try context?.save()
+                } catch {
+                    context?.undo()
+                    fatalError("Error saving context")
+                }
+
+            }
+        }
+    }
+    
+    
     
     @IBAction func handleLongPress(sender: UILongPressGestureRecognizer) {
         mapView.removeGestureRecognizer(sender)
@@ -95,9 +119,11 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
             // Create coredata pin
             let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
             // Create a pin in the managed objectcontext
-            Pin(input: floatingAnnotation, context: (appDelegate.stack?.context)!)
+            let _ = Pin(input: floatingAnnotation, context: (appDelegate.stack?.context)!)
             // Clear out floating annotation
             floatingAnnotation = nil
+            // Save pin in core data
+            save()
             
         default:
             break
@@ -140,6 +166,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
         let stack = appDelegate.stack
         do {
             try stack?.saveContext()
+            prt(#file, line: #line, msg: "Completed Saving Pin to core data")
         } catch {
             print("\(#function) \(#line)Error saving points")
         }
@@ -149,48 +176,62 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
     // Function to call ManagedObjectContext and fetch stored objects
     func loadCoreData() -> [MKAnnotation] {
         print("\(#function) \(#line)Attempting to load persistent data")
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        let moc = appDelegate.stack?.context
-        let pinFetch = NSFetchRequest(entityName: "Pin")
-        do {
-            print("\(#function) \(#line)Trying")
-            var fetchedPins = try moc!.executeFetchRequest(pinFetch) as! [Pin]
-            fetchedPins = try moc!.executeFetchRequest(pinFetch) as! [Pin]
-            var annotations : [MKAnnotation] = []
-            print("\(#function) \(#line)Found this many pins \(fetchedPins.count)")
-            for pin in fetchedPins {
-                let annotation = MKPointAnnotation()
-                annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude as! Double, longitude: pin.longitude as! Double)
-                annotations.append(annotation)
-                // Save all the pins encountered
-                allPins.append(pin)
-                print("\(#function) \(#line)Hi appending pin")
-            }
-            print("\(#function) \(#line)Finished loadcoreData")
+        print("\(#function) \(#line)Trying")
+        var annotations : [MKAnnotation] = []
+        let fetchedPins = getPinArray()
+        if fetchedPins == nil {
+            fatalError("No pins seen")
             return annotations
+        }
+        print("\(#function) \(#line)Found this many pins \(fetchedPins!.count)")
+        for pin in fetchedPins! {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude as! Double, longitude: pin.longitude as! Double)
+            annotations.append(annotation)
+            // Save all the pins encountered
+            allPins.append(pin)
+            print("\(#function) \(#line)Hi appending pin")
+        }
+        print("\(#function) \(#line)Finished loadcoreData")
+        return annotations
+
+    }
+    
+    func getPinArray() -> [Pin]? {
+        let moc = (UIApplication.sharedApplication().delegate as! AppDelegate).stack?.context
+        let request = NSFetchRequest(entityName: "Pin")
+        do {
+            return try moc?.executeFetchRequest(request) as? [Pin]
         } catch {
-            fatalError("Failed to fetch pins: \(error)")
+            fatalError("Failed to query pins")
         }
     }
+    
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.destinationViewController is PhotoAlbumViewController {
             let destinationVC = segue.destinationViewController as! PhotoAlbumViewController
             destinationVC.location = userSelectedPin
+            print("Make sure location is populated \(destinationVC.location)")
             // When in the PhotoAlbumView controller the back button should say OK
             navigationController?.navigationBar.topItem?.title = "OK"
         }
     }
     
+    
     // MARK: - MKMapViewDelegate functions
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        // Save the annotation for injection into the target segue
-        //print("\(#function) \(#line)Do you still need this")
-        //zoomToAnnotation = view.annotation
-        userSelectedPin = findPinFromAnnotationView(view)
+
+            if editingEnabled {
+                deletePinInCoreData(at: (view.annotation?.coordinate)!)
+                mapView.removeAnnotation(view.annotation!)
+            } else {
+                userSelectedPin = findPinFromAnnotationView(view)
+                performSegueWithIdentifier("transistionToPhotoGrid", sender: self)
+        }
     
-        performSegueWithIdentifier("transistionToPhotoGrid", sender: self)
+
     }
     
     // Find exact pin that was selected on the MapView
@@ -203,5 +244,17 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
         return nil
     }
     
+}
+
+extension MainMapViewController {
+    
+    func prt(file: String, line: Int, msg: String){
+        for index in file.characters.indices {
+            if file[index] == "/" && !file.substringFromIndex(index.successor()).containsString("/"){
+                let filename = file.substringFromIndex(index.successor())
+                print("\(filename) \(line) \(msg)")
+            }
+        }
+    }
 }
 

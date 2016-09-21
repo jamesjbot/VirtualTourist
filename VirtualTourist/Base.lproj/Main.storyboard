@@ -67,6 +67,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="de9-WM-9hg">
+                    <connections>
+                        <action selector="handleTap:" destination="BYZ-38-t0r" id="4cX-Qm-jBL"/>
+                    </connections>
+                </tapGestureRecognizer>
                 <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="kPI-4x-543">
                     <connections>
                         <action selector="handleLongPress:" destination="BYZ-38-t0r" id="Cnq-mq-ABe"/>
@@ -97,7 +102,7 @@
                                         </constraints>
                                     </mapView>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="FPX-TU-wU2">
-                                        <rect key="frame" x="0.0" y="152" width="600" height="385"/>
+                                        <rect key="frame" x="0.0" y="152" width="600" height="355"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="wEL-Um-Oal">
                                             <size key="itemSize" width="190" height="190"/>
@@ -106,7 +111,7 @@
                                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         </collectionViewFlowLayout>
                                         <cells>
-                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PVCell" id="8eE-zf-ras" customClass="PhotoViewCell" customModule="VirtualTourist" customModuleProvider="target">
+                                            <collectionViewCell opaque="NO" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PVCell" id="8eE-zf-ras" customClass="PhotoViewCell" customModule="VirtualTourist" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="190" height="190"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
@@ -114,7 +119,7 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8fS-4U-fn7">
-                                                            <rect key="frame" x="9" y="9" width="172" height="172"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="190" height="190"/>
                                                             <color key="backgroundColor" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                         </imageView>
                                                         <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="pd1-N5-2b0">
@@ -123,17 +128,20 @@
                                                     </subviews>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                 </view>
-                                                <color key="backgroundColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="bottomMargin" secondItem="8fS-4U-fn7" secondAttribute="bottom" constant="1" id="6R2-Gw-I3W"/>
+                                                    <constraint firstAttribute="bottomMargin" secondItem="8fS-4U-fn7" secondAttribute="bottom" constant="-8" id="6R2-Gw-I3W"/>
                                                     <constraint firstItem="8fS-4U-fn7" firstAttribute="centerY" secondItem="8eE-zf-ras" secondAttribute="centerY" id="B5Q-Nn-QBZ"/>
                                                     <constraint firstItem="pd1-N5-2b0" firstAttribute="centerY" secondItem="8eE-zf-ras" secondAttribute="centerY" id="FcD-lg-PHS"/>
-                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="top" secondItem="8eE-zf-ras" secondAttribute="topMargin" constant="1" id="NMk-8D-NPJ"/>
+                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="top" secondItem="8eE-zf-ras" secondAttribute="topMargin" constant="-8" id="NMk-8D-NPJ"/>
                                                     <constraint firstItem="pd1-N5-2b0" firstAttribute="centerX" secondItem="8eE-zf-ras" secondAttribute="centerX" id="NzD-0g-MnH"/>
-                                                    <constraint firstAttribute="trailingMargin" secondItem="8fS-4U-fn7" secondAttribute="trailing" constant="1" id="Wwg-pw-yWo"/>
-                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="leading" secondItem="8eE-zf-ras" secondAttribute="leadingMargin" constant="1" id="aw9-1o-nff"/>
+                                                    <constraint firstAttribute="trailingMargin" secondItem="8fS-4U-fn7" secondAttribute="trailing" constant="-8" id="Wwg-pw-yWo"/>
+                                                    <constraint firstItem="8fS-4U-fn7" firstAttribute="leading" secondItem="8eE-zf-ras" secondAttribute="leadingMargin" constant="-8" id="aw9-1o-nff"/>
                                                     <constraint firstItem="8fS-4U-fn7" firstAttribute="centerX" secondItem="8eE-zf-ras" secondAttribute="centerX" id="zLg-qX-4Ah"/>
                                                 </constraints>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="12"/>
+                                                </userDefinedRuntimeAttributes>
                                                 <connections>
                                                     <outlet property="activityIndic" destination="pd1-N5-2b0" id="8iD-y2-VcX"/>
                                                     <outlet property="imageView" destination="8fS-4U-fn7" id="lbN-Th-QQo"/>
@@ -141,11 +149,27 @@
                                             </collectionViewCell>
                                         </cells>
                                     </collectionView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bLF-eM-Ps6">
+                                        <rect key="frame" x="0.0" y="507" width="600" height="30"/>
+                                        <state key="normal" title="New Collection"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                                <integer key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="bottomButtonPressed:" destination="7N6-YO-O8m" eventType="touchUpInside" id="hYB-aW-CTe"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="bLF-eM-Ps6" secondAttribute="trailing" id="5fY-pf-FZ5"/>
+                                    <constraint firstAttribute="bottom" secondItem="bLF-eM-Ps6" secondAttribute="bottom" id="D3u-6Q-gKx"/>
                                     <constraint firstItem="QZG-QS-EEl" firstAttribute="top" secondItem="bEW-Wu-5sg" secondAttribute="top" id="HUZ-2Y-AmF"/>
                                     <constraint firstItem="QZG-QS-EEl" firstAttribute="leading" secondItem="bEW-Wu-5sg" secondAttribute="leading" id="HY2-FQ-swk"/>
+                                    <constraint firstItem="bLF-eM-Ps6" firstAttribute="top" secondItem="FPX-TU-wU2" secondAttribute="bottom" id="dcu-qd-a3q"/>
                                     <constraint firstAttribute="trailing" secondItem="QZG-QS-EEl" secondAttribute="trailing" id="lPt-Tu-Nli"/>
+                                    <constraint firstItem="bLF-eM-Ps6" firstAttribute="leading" secondItem="bEW-Wu-5sg" secondAttribute="leading" id="pAo-wo-nQ9"/>
                                 </constraints>
                             </stackView>
                         </subviews>
@@ -158,6 +182,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="bottomButton" destination="bLF-eM-Ps6" id="Dot-17-dzY"/>
                         <outlet property="collectionGrid" destination="FPX-TU-wU2" id="qKL-OU-f23"/>
                         <outlet property="mapView" destination="QZG-QS-EEl" id="a2X-tf-hhi"/>
                     </connections>

@@ -26,11 +26,32 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
     private let maximumImages = 21
     // MARK: - IBOutlets
     
+    @IBOutlet weak var bottomButton: UIButton!
+    
     @IBOutlet weak var mapView: MKMapView!
 
     @IBOutlet weak var collectionGrid: UICollectionView!
 
+    // MARK: - IBActions
+    
+    @IBAction func bottomButtonPressed(sender: AnyObject) {
+        if currentBottomButtonState == BottomButtonState.Delete {
+            let indexpaths = collectionGrid.indexPathsForSelectedItems()
+            print("Deleting these paths \(indexpaths)")
+        } else {
+            print("fetch new items now")
+        }
+    }
+    
+    
     // MARK: - Variables
+    
+    enum BottomButtonState {
+        case NewCollection
+        case Delete
+    }
+    
+    var currentBottomButtonState = BottomButtonState.NewCollection
     
     var location: Pin!
     
@@ -94,6 +115,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
         // Set this CollectionView to receive updates
         frc?.delegate = self
         collectionGrid.dataSource = self
+        collectionGrid.delegate = self
+        collectionGrid.allowsMultipleSelection = true
         
         if frc?.fetchedObjects?.count < 1 {
             flickrClient.searchForPicturesByLatLonByPin(location){
@@ -189,7 +212,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
     
     
     func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
-        //print("\(#function) \(#line)controller did change section called")
+
     }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
@@ -254,6 +277,39 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
     }
     
 }
+
+extension PhotoAlbumViewController: UICollectionViewDelegate {
+ 
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        print("You selected item at indexpath \(indexPath.item)")
+        let cell = collectionGrid.cellForItemAtIndexPath(indexPath) as! PhotoViewCell
+        cell.imageView.alpha = 0.50
+        
+        if currentBottomButtonState != BottomButtonState.Delete {
+            currentBottomButtonState = BottomButtonState.Delete
+            bottomButton.titleLabel?.text = "Delete"
+        }
+    }
+    
+    func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
+        print("You deselected item at indexpath \(indexPath.item)")
+        let cell = collectionGrid.cellForItemAtIndexPath(indexPath) as! PhotoViewCell
+        cell.imageView.alpha = 1.0
+        print("colleciton holds \(collectionGrid.indexPathsForSelectedItems()?.count)")
+        if collectionGrid.indexPathsForSelectedItems()?.count == 0 {
+            currentBottomButtonState = BottomButtonState.NewCollection
+            bottomButton.titleLabel?.text = "New Collection"
+        }
+    }
+    
+    
+    func collectionView(collectionView: UICollectionView, shouldHighlightItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+        print("You asked whether \(indexPath.item) shold be higlighted")
+        return true
+    }
+
+}
+
 
 extension PhotoAlbumViewController {
 
