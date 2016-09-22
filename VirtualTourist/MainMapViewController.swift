@@ -71,7 +71,6 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
 
     
     func deletePinInCoreData(at location: CLLocationCoordinate2D){
-        
         let fetchedPins = getPinArray()
         for pin in fetchedPins! {
             if pin.latitude == location.latitude && pin.longitude == location.longitude {
@@ -83,7 +82,6 @@ class MainMapViewController: UIViewController, MKMapViewDelegate {
                     context?.undo()
                     fatalError("Error saving context")
                 }
-
             }
         }
     }

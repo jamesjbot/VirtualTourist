@@ -11,17 +11,16 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
+class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     
     // MARK: - Debug statements
-    
     
     
     // MARK: - Constants
     
     let PHOTOALBUMCELLIDENTIFIER = "PVCell"
-    private var sectionInsets = UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50)
-    private let minimumSpacing = CGFloat(10)
+    private var sectionInsets = UIEdgeInsets(top: 5, left: 8, bottom: 50, right: 8)
+    private let minimumSpacing = CGFloat(1)
     private let flickrClient = FlickrClient.sharedInstance()
     private let maximumImages = 21
     // MARK: - IBOutlets
@@ -29,29 +28,76 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
     @IBOutlet weak var bottomButton: UIButton!
     
     @IBOutlet weak var mapView: MKMapView!
-
+    
     @IBOutlet weak var collectionGrid: UICollectionView!
-
+    
     // MARK: - IBActions
     
+    @IBAction func tapDetected(sender: UITapGestureRecognizer) {
+        prt(#file, line: #line, msg: "\(sender.state)")
+    }
     @IBAction func bottomButtonPressed(sender: AnyObject) {
-        if currentBottomButtonState == BottomButtonState.Delete {
+        switch(currentBottomButtonState) {
+        case BottomButtonState.Delete:
             let indexpaths = collectionGrid.indexPathsForSelectedItems()
-            print("Deleting these paths \(indexpaths)")
-        } else {
+            //            for index in indexpaths {
+            //                print(collectionGrid.cellForItemAtIndexPath(index).ishightlite)
+            //            }
+            let context  = (UIApplication.sharedApplication().delegate as! AppDelegate).stack?.context
+            prt(#file, line: #line, msg: "perform block next")
+            context?.performBlockAndWait(){
+                for (index,b) in self.selectedPhotos.enumerate() {
+                    if b {
+                        self.prt(#file, line: #line, msg: "attempting to delete entry at index: \(index)")
+                        //let junk = self.collectionGrid.cellForItemAtIndexPath(index)
+                        do {
+                            self.prt(#file, line: #line, msg: "Collectiongrid before deletion \(self.collectionGrid.numberOfItemsInSection(0))")
+                            self.prt(#file, line: #line, msg: "next get cell")
+                            //let cell = (self.collectionGrid.cellForItemAtIndexPath(index) as! PhotoViewCell)
+                            self.prt(#file, line: #line, msg: "get object id")
+                            //let objectID = cell.coreDataObjectID
+                            self.prt(#file, line: #line, msg: "deleting object next")
+                            let indexPath = NSIndexPath(forItem: index, inSection: 0)
+                            let deletableObject = self.frc?.objectAtIndexPath(indexPath)
+                            context?.deleteObject(deletableObject! as! NSManagedObject)
+                            self.prt(#file, line: #line, msg: "deleted object savingcontext")
+                            try context?.save()
+                            self.selectedPhotos[index] = false
+                            self.prt(#file, line: #line, msg: "Context saved")
+                            self.prt(#file, line: #line, msg: "now change did occur will fire and delete the object causing a rift in viewcontroller order")
+                        } catch let error {
+                            context?.undo()
+                            fatalError("Error saving context \(error)")
+                        }
+                    }
+                }
+                print("Deleting these paths \(indexpaths)")
+            }
+        case BottomButtonState.NewCollection:
             print("fetch new items now")
         }
     }
     
     
+    
     // MARK: - Variables
+    
+    var selectedPhotos = [Bool](count: 21, repeatedValue: false)
     
     enum BottomButtonState {
         case NewCollection
         case Delete
     }
     
-    var currentBottomButtonState = BottomButtonState.NewCollection
+    var currentBottomButtonState : BottomButtonState = BottomButtonState.NewCollection {
+        didSet{
+            if currentBottomButtonState == BottomButtonState.Delete {
+                bottomButton.setTitle("Delete", forState: .Normal)
+            } else {
+                bottomButton.setTitle("New Collection", forState: .Normal)
+            }
+        }
+    }
     
     var location: Pin!
     
@@ -69,7 +115,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
         let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
         if slowWAy {
             executeFetchResultsController()
-
+            
             for photo in (frc?.fetchedObjects)! {
                 let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
                 (appDel.stack?.context)!.deleteObject(photo as! Photo)
@@ -92,6 +138,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
         // Testing
         prt(#file, line: #line, msg: "The following fetch is to delete data")
         testingDeleteAllPhotos()
+        
+        currentBottomButtonState = BottomButtonState.NewCollection
         
         // MapView configuration
         let span = MKCoordinateSpanMake(3 , 3)
@@ -117,6 +165,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
         collectionGrid.dataSource = self
         collectionGrid.delegate = self
         collectionGrid.allowsMultipleSelection = true
+        collectionGrid.allowsSelection = true
         
         if frc?.fetchedObjects?.count < 1 {
             flickrClient.searchForPicturesByLatLonByPin(location){
@@ -128,21 +177,26 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
                     self.prt(#file, line: #line, msg: "But there are \(self.flickrClient.photoSearchResultsArray.count) photoSearchResults")
                     self.flickrClient.populateCoreDataWithSearchResults(){
                         (success, error) -> Void in
-                        print("\(#function) \(#line)The populating of CoreData succeded \(success)")
+                        self.prt(#file, line: #line, msg: "The populating of CoreData succeded \(success)")
                     }
                     //self.collectionGrid.reloadData()
-                    //print(self.flickrClient.photoSearchResultsArray)
                 }
             }
         }
     }
     
     func initializeFlowLayout() {
-
+        
         flowLayout!.itemSize = CGSize(width: sizeOfCell, height: sizeOfCell)
         flowLayout!.minimumInteritemSpacing = minimumSpacing
         flowLayout!.minimumLineSpacing = minimumSpacing
+        flowLayout!.sectionInset = sectionInsets
         collectionGrid.collectionViewLayout = flowLayout!
+        
+    }
+    
+    func setDeviceSpecificSizeOfCell(){
+        self.sizeOfCell = (view.frame.width - 6*minimumSpacing)/3 - 5
     }
     
     func executeFetchResultsController(){
@@ -154,19 +208,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
         let appDel = UIApplication.sharedApplication().delegate as! AppDelegate
         let moc = appDel.stack?.context
         frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: moc!, sectionNameKeyPath: nil, cacheName: nil)
-
+        
         do {
             try frc?.performFetch()
-            print("\(#function) \(#line)Number of objects retrieved with fetch request \(frc?.fetchedObjects?.count)")
+            prt(#file, line: #line, msg: "Number of objects retrieved with fetch request \(frc?.fetchedObjects?.count)")
         } catch {
             fatalError("Failed to initialize FetchedResultsControler \(error)")
         }
-        print("\(#function) \(#line)exiting initializefetchrequest")
-    }
-    
-    
-    func setDeviceSpecificSizeOfCell(){
-        self.sizeOfCell = (view.frame.width - 2*minimumSpacing)/3
+        prt(#file, line: #line, msg: "exiting initializefetchrequest")
     }
     
     // MARK: - UICollectionViewDataSource
@@ -180,57 +229,86 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        print("\(#function) \(#line)******cellForItemAtIndexPathCalled location:\(indexPath.item)")
-        let managedPhoto = frc?.objectAtIndexPath(indexPath) as! Photo
+        // Get a cell from the storyboard up to maximum allowed storyboard cell
         
-        //print("\(#function) \(#line)Dequeuing a UICell and inserting Incoming indexPath \(indexPath)")
+        // Get data from model and populate it into dequeued storyboard cell
+        
+        // The storyboard cell knows whether it is selected or not.
+        
+        prt(#file, line: #line, msg: "******cellForItemAtIndexPathCalled location:\(indexPath.item)")
+        let coreDataPhoto = frc?.objectAtIndexPath(indexPath) as! Photo
+        
+        // We are dequeuing up to a maximum of 21 cell form the story board
+
+        //prt(#file, line: #line, msg: "Dequeuing a UICell and inserting Incoming indexPath \(indexPath)")
         let cell = collectionGrid.dequeueReusableCellWithReuseIdentifier(PHOTOALBUMCELLIDENTIFIER, forIndexPath: indexPath) as! PhotoViewCell
         
-        if managedPhoto.imageData == nil {
+        cell.coreDataObjectID = coreDataPhoto.objectID
+        switch (cell.imageView.image){
+        case nil:
+            print("photo is nill")
+        case _ :
+            print("it's not nil")
+        }
+        if coreDataPhoto.imageData == nil {
             cell.activityIndic.hidden = false
             cell.activityIndic.startAnimating()
             dispatch_async(dispatch_get_main_queue()){
                 () -> Void in
-                self.flickrClient.downloadImage(NSURL(string: managedPhoto.url!)!, forPin: self.location!, updateMangedObjectID: managedPhoto.objectID)
+                self.flickrClient.downloadImage(NSURL(string: coreDataPhoto.url!)!, forPin: self.location!, updateMangedObjectID: coreDataPhoto.objectID)
             }
-            print("\(#function) \(#line)\(#function) \(#line) Returning a Nil Cell")
+            prt(#file, line: #line, msg: "\(#function) \(#line) Returning a Nil Cell")
         } else {
             cell.activityIndic.hidden = true
             cell.activityIndic.stopAnimating()
-            cell.imageView.image = UIImage(data: managedPhoto.imageData!)
-            print("\(#function) \(#line)Returning a Image Populated Cell")
+            cell.imageView.image = UIImage(data: coreDataPhoto.imageData!)
+            switch (selectedPhotos[indexPath.item]) {
+            case true:
+                cell.selected = true
+            case false:
+                cell.selected = false
+            }
+            prt(#file, line: #line, msg: "Returning a Image Populated Cell")
         }
-        
         return cell
     }
+}
 
-    // MARK: NSFetchedResultsControllerDelegate methods
-    
+// MARK: NSFetchedResultsControllerDelegate methods
+extension PhotoAlbumViewController : NSFetchedResultsControllerDelegate {
+
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        print("\(#function) \(#line)controllerWillChangeContent called")
+        prt(#file, line: #line, msg: "controllerWillChangeContent called")
     }
     
     
     func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
-
+        
     }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
-        print("\(#function) \(#line)-----------------------------------------------------")
-        print("\(#function) \(#line)CoreData changed detected")
-        print("\(#function) \(#line)Did change object called Old index:\(indexPath?.item)")
-        print("\(#function) \(#line)Chaging CollectionView Cell at New index:\((newIndexPath?.item))")
-        print("\(#function) \(#line)\(anObject.dynamicType) object: \(anObject)")
-        print("\(#function) \(#line)The type is: \(type)")
+        prt(#file, line: #line, msg: "-----------------------------------------------------")
+        prt(#file, line: #line, msg: "CoreData changed detected")
+        prt(#file, line: #line, msg: "Did change object called Old index:\(indexPath?.item)")
+        prt(#file, line: #line, msg: "Changing CollectionView Cell at New index:\((newIndexPath?.item))")
+        prt(#file, line: #line, msg: "Type:\(anObject.dynamicType),\n objectDescription: \(anObject)")
+        prt(#file, line: #line, msg: "The change type is: \(type.rawValue)")
+        
+        print(NSFetchedResultsChangeType.Insert.rawValue)
+        print(NSFetchedResultsChangeType.Delete.rawValue)
+        print(NSFetchedResultsChangeType.Move.rawValue)
+        print(NSFetchedResultsChangeType.Update.rawValue)
+        
+        self.prt(#file, line: #line, msg: "Collectiongrid before deletion \(self.collectionGrid.numberOfItemsInSection(0))")
         
         guard (newIndexPath?.item <= maximumImages && indexPath?.item <= maximumImages) else {
             print("Guard statment blocked didChangeObject")
             return
         }
-        
+        self.prt(#file, line: #line, msg: "Collectiongrid before deletion \(self.collectionGrid.numberOfItemsInSection(0))")
         switch (type){
         case .Insert:
-            print("\(#function) \(#line)Initial Loading")
+            prt(#file, line: #line, msg: "Initial Loading")
             //collectionGrid.reloadItemsAtIndexPaths([newIndexPath!])
             //collectionGrid.reloadData()
             
@@ -241,84 +319,113 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, NS
             }
             prt(#file, line: #line, msg: "You should update the view controller now")
         case .Delete:
+            self.prt(#file, line: #line, msg: "Collectiongrid before deletion \(self.collectionGrid.numberOfItemsInSection(0))")
             //fatalError("Delete is not currently acceptable")
-            print("\(#function) \(#line)this is a delete")
-            collectionGrid.deleteItemsAtIndexPaths([indexPath!])
-        case .Update:
-            //fatalError("Update is not curretnly acceptable")
-            print("\(#function) \(#line)this is an update")
-            collectionGrid.reloadItemsAtIndexPaths([indexPath!])
+            prt(#file, line: #line, msg: "this is a delete")
+        //collectionGrid.deleteItemsAtIndexPaths([indexPath!])
         case .Move:
             fatalError("Should never occur")
-            print("\(#function) \(#line)this is a move")
+            prt(#file, line: #line, msg: "this is a move")
             if indexPath != newIndexPath {
-                print("\(#function) \(#line)Why are these different \(indexPath?.item) \(newIndexPath?.item)")
+                prt(#file, line: #line, msg: "Why are these different \(indexPath?.item) \(newIndexPath?.item)")
             }
             let cell = collectionGrid.cellForItemAtIndexPath(newIndexPath!) as! PhotoViewCell
             if cell.imageView.image != nil {
-                print("\(#function) \(#line)Here is the problem <----------------- This image is already populated")
+                prt(#file, line: #line, msg: "Here is the problem <----------------- This image is already populated")
             }
             //collectionGrid.reloadItemsAtIndexPaths([indexPath!])
             //collectionGrid.deleteItemsAtIndexPaths([indexPath!])
             //collectionGrid.insertItemsAtIndexPaths([newIndexPath!])
-            print("\(#function) \(#line)This many Photo objects in coredata:\((frc?.fetchedObjects?.count)!)")
+            prt(#file, line: #line, msg: "This many Photo objects in coredata:\((frc?.fetchedObjects?.count)!)")
             for photo in (frc?.fetchedObjects)! {
                 print(photo)
             }
-            //collectionGrid.reloadData()
+        //collectionGrid.reloadData()
+        case .Update:
+            //fatalError("Update is not curretnly acceptable")
+            prt(#file, line: #line, msg: "this is an update")
+            //collectionGrid.reloadItemsAtIndexPaths([indexPath!])
         }
     }
     
-    // MARK: - NSFetchedResultsControllerDelegate
-    
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        //print("\(#function) \(#line)Controller Did Change Content fired")
+        //prt(#file, line: #line, msg: "Controller Did Change Content fired")
         collectionGrid.reloadData()
     }
     
 }
 
+
+// MARK: UICollectionViewDelegate
 extension PhotoAlbumViewController: UICollectionViewDelegate {
- 
+    
+    func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+        print("Should select item called")
+        return true
+    }
+    
+    func collectionView(collectionView: UICollectionView, shouldDeselectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+        print("Should ")
+        return true
+    }
+    
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         print("You selected item at indexpath \(indexPath.item)")
+        selectedPhotos[indexPath.item] = true
         let cell = collectionGrid.cellForItemAtIndexPath(indexPath) as! PhotoViewCell
-        cell.imageView.alpha = 0.50
-        
+        //cell.imageView.alpha = 0.50
+        print("Collectionview selection has this many selected now: \(collectionGrid.indexPathsForSelectedItems()!.count)")
         if currentBottomButtonState != BottomButtonState.Delete {
             currentBottomButtonState = BottomButtonState.Delete
-            bottomButton.titleLabel?.text = "Delete"
         }
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
         print("You deselected item at indexpath \(indexPath.item)")
+        selectedPhotos[indexPath.item] = false
+        print("Collectionview selection has this many selected now: \(collectionGrid.indexPathsForSelectedItems()!.count)")
         let cell = collectionGrid.cellForItemAtIndexPath(indexPath) as! PhotoViewCell
-        cell.imageView.alpha = 1.0
+        //cell.imageView.alpha = 1.0
         print("colleciton holds \(collectionGrid.indexPathsForSelectedItems()?.count)")
-        if collectionGrid.indexPathsForSelectedItems()?.count == 0 {
+        
+        if !thereAreSelectedPhotos() {
             currentBottomButtonState = BottomButtonState.NewCollection
-            bottomButton.titleLabel?.text = "New Collection"
         }
     }
     
-    
     func collectionView(collectionView: UICollectionView, shouldHighlightItemAtIndexPath indexPath: NSIndexPath) -> Bool {
         print("You asked whether \(indexPath.item) shold be higlighted")
+        print(selectedPhotos)
         return true
     }
-
+    
+    func collectionView(collectionView: UICollectionView, didUnhighlightItemAtIndexPath indexPath: NSIndexPath) {
+        print("Hey you unhighlighted something")
+    }
+    
+    func collectionView(collectionView: UICollectionView, didHighlightItemAtIndexPath indexPath: NSIndexPath) {
+        print("Hey you highlighted something")
+    }
+    
+    func thereAreSelectedPhotos() -> Bool {
+        for i in selectedPhotos {
+            if i {
+                return true
+            }
+        }
+        return false
+    }
 }
 
 
 extension PhotoAlbumViewController {
-
+    
     func prt(file: String, line: Int, msg: String){
-            for index in file.characters.indices {
-                if file[index] == "/" && !file.substringFromIndex(index.successor()).containsString("/"){
-                    let filename = file.substringFromIndex(index.successor())
-                    print("\(filename) \(line) \(msg)")
-                }
+        for index in file.characters.indices {
+            if file[index] == "/" && !file.substringFromIndex(index.successor()).containsString("/"){
+                let filename = file.substringFromIndex(index.successor())
+                print("\(filename) \(line) \(msg)")
             }
         }
+    }
 }
