@@ -17,6 +17,7 @@ class FlickrClient {
     // MARK: Variables
     let appdel = UIApplication.sharedApplication().delegate as! AppDelegate
     var photoSearchResultsArray : [[String:AnyObject]] = [[String:AnyObject]]()
+    var visibleSearchResultsURL:[NSURL] = [NSURL]()
     //var pinLocation: Pin?
     var urlPhotoID = [NSURL:NSManagedObjectID]()
     
@@ -46,7 +47,6 @@ class FlickrClient {
             Constants.FlickrParameterKeys.Extras : Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format : Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback : Constants.FlickrParameterValues.DisableJSONCallback,
-        //print("\(#function) \(#line)THe type of methodsparams is \(methodParameters.dynamicType)")
             Constants.FlickrParameterKeys.Lat : location.latitude!,
             Constants.FlickrParameterKeys.Lon : location.longitude!
        ]
@@ -70,25 +70,53 @@ class FlickrClient {
                     // Perform model updates
                     let photosElement = dict!["photos"]
                     self.photoSearchResultsArray = photosElement!["photo"] as! [[String:AnyObject]]
-                    // Notify caller of task completion
-                    completionHandlerTopLevel(success: true, error: nil)
-                    return
+                    
+                    //Load local visible records
+                    for (x,item) in self.photoSearchResultsArray.enumerate() {
+                        if x > Constants.Flickr.MaximumShownImages-1 {
+                            break
+                        }
+                        self.visibleSearchResultsURL.append(self.constructImageURL(item))
+                    }
+                    
+                    //Load visible records into coredata
+                    self.populateCoreDataWithSearchResults(){
+                        (success, error ) -> Void in
+                    // Notify PhotoAlbumViewController we completed searching for photos
+                        if success {
+                            completionHandlerTopLevel(success: true, error: nil)
+                            return
+                        }
+                    }
                 }
             }
         }
         task.resume()
     }
     
-    func populateCoreDataWithSearchResults(completionHandler: (success: Bool, error: NSError?) -> Void ){
+    func loadNewCollection(){
+        // Load local visible records
+        let acceptableRange = photoSearchResultsArray.count - Constants.Flickr.MaximumShownImages + 1
+        let randomBaseIndex = Int(arc4random_uniform(UInt32(acceptableRange)))
+        self.visibleSearchResultsURL.removeAll()
+        for x in randomBaseIndex ..< randomBaseIndex+Constants.Flickr.MaximumShownImages {
+            self.visibleSearchResultsURL.append(constructImageURL(photoSearchResultsArray[x]))
+        }
+        populateCoreDataWithSearchResults( nil )
+    }
+    
+    private func populateCoreDataWithSearchResults(completionHandler: ((success: Bool, error: NSError?) -> Void)! ){
         // Add photos to core data
-        for element in photoSearchResultsArray {
-            dispatch_async(dispatch_get_main_queue()){
+        for (i,element) in visibleSearchResultsURL.enumerate() {
+            dispatch_barrier_async(dispatch_get_main_queue()){
+            //dispatch_sync(dispatch_get_main_queue()){
                 () -> Void in
                 self.prt(#file, line: #line, msg: "Creating coredataphoto next")
-                let _ = Photo(image: nil, url: self.constructImageURL(element),  context: self.context)
+                let _ = Photo(image: nil, url: element,  context: self.context)
                 self.prt(#file, line: #line, msg: "After creating coredataphoto")
-                do {                    try self.context.save()
-                    print("\(#function) \(#line)Coredata save changes committed")
+                do {
+                    try self.context.save()
+                    print("\(#function) \(#line) Coredata save changes committed on Photo\(i)")
 
                 } catch let error {
                     print("\(#function) \(#line)\(#line) Error saving placeholders in coredata\(error) ")
@@ -97,43 +125,36 @@ class FlickrClient {
             }
         }
         print("\(#function) \(#line) Completed Iterating thru photoSearchResults doesn't mean I completed adding elements to coredata")
-        let frc = sanityCheck()
-        print("Before saving FRC now has \(frc.fetchedObjects?.count)")
+        //let frc = sanityCheck()
+        //print("Before saving FRC now has \(frc.fetchedObjects?.count)")
         do {
             try appdel.stack?.saveContext()
         } catch let error {
             print("Some error occured during saving background context \(error)")
         }
-        print("After saving FRC now has \(frc.fetchedObjects?.count)")
+        //print("After saving FRC now has \(frc.fetchedObjects?.count)")
         completionHandler(success: true, error: nil)
     }
     
-    func downloadImage( aturl: NSURL, forPin: Pin, updateMangedObjectID: NSManagedObjectID) {
+    func downloadImageToCoreData( aturl: NSURL, forPin: Pin, updateManagedObjectID: NSManagedObjectID) {
         let session = NSURLSession.sharedSession()
-        //let request = NSURLRequest(URL: url)
         let task = session.dataTaskWithURL(aturl){
             (data, response, error) -> Void in
-            //print("\(#function) \(#line)Finshed downloading images \(response)")
             if error == nil {
                 self.prt(#function, line: #line, msg: "-----------------> Attempting to put image in to Coredata")
                 if data == nil {
-                    print("\(#function) \(#line)Image data is nil, the type is \(data.dynamicType)")
                     fatalError("Data returned nil")
                 }
-                //let image = UIImage(data: data!)
-                
-                //print(image)
-                //let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                print("\(#function) \(#line)===========>\(#function) Adding photo to context")
+                print("\(#function) \(#line)===========>\(#function) Adding photo to context \(updateManagedObjectID)")
                 //let context = (appDelegate.stack?.context)!
-                    let photoForUpdate = self.context.objectWithID(updateMangedObjectID)
+                    let photoForUpdate = self.context.objectWithID(updateManagedObjectID)
                     photoForUpdate.setValue(data, forKey: "imageData")
                     photoForUpdate.setValue(forPin, forKey: "pin")
                     do {
                         try self.context.save()
-                        print("\(#function) \(#line)-----------------> Successfully added images to coredata")
+                        print("\(#function) \(#line)-----------------> Successfully added images to coredata \(photoForUpdate)")
                     } catch let error {
-                        print("\(#function) \(#line)\(#line) \(#file) \n Error saving context \(error)")
+                        fatalError()
                     }
             }
         }
@@ -222,8 +243,8 @@ class FlickrClient {
     }
     
     
-    func sanityCheck() -> NSFetchedResultsController {
-        print("\(#function) \(#line)executeFetchResultsController() Called")
+    func sanityCheckGetAFetchedResultsController() -> NSFetchedResultsController {
+        print("\(#function) \(#line) Sanity Check called executeFetchResultsController() Called")
         let request = NSFetchRequest(entityName: "Photo")
         request.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
         // For debugging
