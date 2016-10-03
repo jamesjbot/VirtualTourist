@@ -1,0 +1,118 @@
+------DUMP ARRAYS-----------
+COLLECTIONVIEW VISIBLE CELLS; i,objectid,image=nil,url
+0: 0xd00000013fc40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20465> false nil
+1: 0xd00000013fcc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20467> false nil
+2: 0xd00000013fd40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20469> false nil
+3: 0xd00000013fdc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20471> false nil
+4: 0xd00000013fe40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20473> false nil
+5: 0xd00000013fc00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20464> false nil
+6: 0xd00000013fc80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20466> false nil
+7: 0xd00000013fd00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20468> false nil
+8: 0xd00000013fd80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20470> false nil
+9: 0xd00000013fe00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20472> false nil
+10: 0xd00000013fe80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20474> false nil
+11: 0xd00000013fbc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20463> false nil
+Collection vieW indexpathsforvisible; i,index.item, indexpath, objectid
+0: 2 <NSIndexPath: 0xc000000000400016> {length = 2, path = 0 - 2} Optional(<VirtualTourist.Photo: 0x7fceda011c10> (entity: Photo; id: 0xd00000013fc40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20465> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 0000009f 08020000 004895c3 4a000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm6.staticflickr.com/5620/29988914316_75976f8c05_m.jpg";
+}))
+1: 4 <NSIndexPath: 0xc000000000800016> {length = 2, path = 0 - 4} Optional(<VirtualTourist.Photo: 0x7fceda011cd0> (entity: Photo; id: 0xd00000013fcc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20467> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 00000071 08020000 0064dbb9 b8000001 b8694343 50494343 2050726f 6669>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm8.staticflickr.com/7581/29394983434_0e2b079a52_m.jpg";
+}))
+2: 6 <NSIndexPath: 0xc000000000c00016> {length = 2, path = 0 - 6} Optional(<VirtualTourist.Photo: 0x7fceda011d90> (entity: Photo; id: 0xd00000013fd40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20469> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 0000009f 08020000 004895c3 4a000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm9.staticflickr.com/8404/29988922826_fd17630e64_m.jpg";
+}))
+3: 8 <NSIndexPath: 0xc000000001000016> {length = 2, path = 0 - 8} Optional(<VirtualTourist.Photo: 0x7fceda011e50> (entity: Photo; id: 0xd00000013fdc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20471> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 0000009f 08020000 004895c3 4a000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm6.staticflickr.com/5118/30023069545_9e49c72a16_m.jpg";
+}))
+4: 10 <NSIndexPath: 0xc000000001400016> {length = 2, path = 0 - 10} Optional(<VirtualTourist.Photo: 0x7fceda011f10> (entity: Photo; id: 0xd00000013fe40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20473> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 000000f0 08020000 00b1377e c5000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm6.staticflickr.com/5682/30023061765_bc3b8b6d90_m.jpg";
+}))
+5: 1 <NSIndexPath: 0xc000000000200016> {length = 2, path = 0 - 1} Optional(<VirtualTourist.Photo: 0x7fceda011bb0> (entity: Photo; id: 0xd00000013fc00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20464> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000b4 000000f0 08020000 002666d9 1f000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm9.staticflickr.com/8541/29395036724_6e223d0be9_m.jpg";
+}))
+6: 3 <NSIndexPath: 0xc000000000600016> {length = 2, path = 0 - 3} Optional(<VirtualTourist.Photo: 0x7fceda011c70> (entity: Photo; id: 0xd00000013fc80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20466> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 000000f0 08020000 00b1377e c5000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm6.staticflickr.com/5813/30023065995_21d523b6e8_m.jpg";
+}))
+7: 5 <NSIndexPath: 0xc000000000a00016> {length = 2, path = 0 - 5} Optional(<VirtualTourist.Photo: 0x7fceda011d30> (entity: Photo; id: 0xd00000013fd00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20468> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 000000ab 08020000 00d77e86 f1000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm8.staticflickr.com/7761/29988856446_3c0859e587_m.jpg";
+}))
+8: 7 <NSIndexPath: 0xc000000000e00016> {length = 2, path = 0 - 7} Optional(<VirtualTourist.Photo: 0x7fceda011df0> (entity: Photo; id: 0xd00000013fd80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20470> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 000000f0 08020000 00b1377e c5000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm8.staticflickr.com/7484/29939536651_3ca9cfa077_m.jpg";
+}))
+9: 9 <NSIndexPath: 0xc000000001200016> {length = 2, path = 0 - 9} Optional(<VirtualTourist.Photo: 0x7fceda011eb0> (entity: Photo; id: 0xd00000013fe00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20472> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 000000de 08020000 008c911a 83000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm9.staticflickr.com/8132/29395060314_a23fbd67fe_m.jpg";
+}))
+10: 11 <NSIndexPath: 0xc000000001600016> {length = 2, path = 0 - 11} Optional(<VirtualTourist.Photo: 0x7fceda011f70> (entity: Photo; id: 0xd00000013fe80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20474> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 0000009f 000000f0 08020000 0091db21 38000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm6.staticflickr.com/5524/30023034685_1faebd4880_m.jpg";
+}))
+11: 0 <NSIndexPath: 0xc000000000000016> {length = 2, path = 0 - 0} Optional(<VirtualTourist.Photo: 0x7fceda011790> (entity: Photo; id: 0xd00000013fbc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20463> ; data: {
+imageData = <89504e47 0d0a1a0a 0000000d 49484452 000000f0 000000ce 08020000 008f4718 18000000 01735247 4200aece 1ce90000 001c>;
+pin = "0xd0000000034c0000 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Pin/p211>";
+url = "https://farm9.staticflickr.com/8536/29396288683_46281e8471_m.jpg";
+}))
+frc i,objectid, image=nil, url,indexpath
+0: 0xd00000013fbc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20463> false Optional("https://farm9.staticflickr.com/8536/29396288683_46281e8471_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000000016> {length = 2, path = 0 - 0})
+1: 0xd00000013fc00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20464> false Optional("https://farm9.staticflickr.com/8541/29395036724_6e223d0be9_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000200016> {length = 2, path = 0 - 1})
+2: 0xd00000013fc40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20465> false Optional("https://farm6.staticflickr.com/5620/29988914316_75976f8c05_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000400016> {length = 2, path = 0 - 2})
+3: 0xd00000013fc80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20466> false Optional("https://farm6.staticflickr.com/5813/30023065995_21d523b6e8_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000600016> {length = 2, path = 0 - 3})
+4: 0xd00000013fcc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20467> false Optional("https://farm8.staticflickr.com/7581/29394983434_0e2b079a52_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000800016> {length = 2, path = 0 - 4})
+5: 0xd00000013fd00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20468> false Optional("https://farm8.staticflickr.com/7761/29988856446_3c0859e587_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000a00016> {length = 2, path = 0 - 5})
+6: 0xd00000013fd40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20469> false Optional("https://farm9.staticflickr.com/8404/29988922826_fd17630e64_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000c00016> {length = 2, path = 0 - 6})
+7: 0xd00000013fd80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20470> false Optional("https://farm8.staticflickr.com/7484/29939536651_3ca9cfa077_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000000e00016> {length = 2, path = 0 - 7})
+8: 0xd00000013fdc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20471> false Optional("https://farm6.staticflickr.com/5118/30023069545_9e49c72a16_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001000016> {length = 2, path = 0 - 8})
+9: 0xd00000013fe00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20472> false Optional("https://farm9.staticflickr.com/8132/29395060314_a23fbd67fe_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001200016> {length = 2, path = 0 - 9})
+10: 0xd00000013fe40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20473> false Optional("https://farm6.staticflickr.com/5682/30023061765_bc3b8b6d90_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001400016> {length = 2, path = 0 - 10})
+11: 0xd00000013fe80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20474> false Optional("https://farm6.staticflickr.com/5524/30023034685_1faebd4880_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001600016> {length = 2, path = 0 - 11})
+12: 0xd00000013fec0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20475> true Optional("https://farm9.staticflickr.com/8049/29939520421_5b2fcdacb0_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001800016> {length = 2, path = 0 - 12})
+13: 0xd00000013ff00002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20476> false Optional("https://farm6.staticflickr.com/5740/29396315023_5d010d3e67_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001a00016> {length = 2, path = 0 - 13})
+14: 0xd00000013ff40002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20477> true Optional("https://farm9.staticflickr.com/8549/29988860886_7a0f723311_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001c00016> {length = 2, path = 0 - 14})
+15: 0xd00000013ff80002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20478> false Optional("https://farm9.staticflickr.com/8401/29988876266_c8cdc82201_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000001e00016> {length = 2, path = 0 - 15})
+16: 0xd00000013ffc0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20479> true Optional("https://farm9.staticflickr.com/8267/29909333072_3654a00699_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000002000016> {length = 2, path = 0 - 16})
+17: 0xd000000140000002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20480> false Optional("https://farm9.staticflickr.com/8270/30023038715_0697501576_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000002200016> {length = 2, path = 0 - 17})
+18: 0xd000000140040002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20481> false Optional("https://farm9.staticflickr.com/8279/29939516121_df1ed30617_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000002400016> {length = 2, path = 0 - 18})
+19: 0xd000000140080002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20482> false Optional("https://farm8.staticflickr.com/7776/29394996314_81d10b56c0_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000002600016> {length = 2, path = 0 - 19})
+20: 0xd0000001400c0002 <x-coredata://833EFE18-3CC0-4774-A391-28DC8EB51E55/Photo/p20483> false Optional("https://farm8.staticflickr.com/7547/30023079635_05bdb4d22e_m.jpg")
+indexpath:Optional(<NSIndexPath: 0xc000000002800016> {length = 2, path = 0 - 20})
