@@ -10,17 +10,16 @@ import CoreData
 
 class CoreDataStack: NSObject {
     // MARK: - Constants
-    private let sqlFilename : String = "jamesjongs.sqlite"
+    private let sqlFilename : String = "com.jamesjongs.sqlite"
     
     // MARK: - Variables
     private var model: NSManagedObjectModel!
     private var mainStoreCoordinator: NSPersistentStoreCoordinator!
     private var modelURL: NSURL!
     private var dbURL: NSURL!
-    //private var persistentContext: NSManagedObjectContext!
-    //private var backgroundCentext : NSManagedObjectContext!
-    var context: NSManagedObjectContext! //in Udacity code we call this context
+    var persistingContext: NSManagedObjectContext!
     var backgroundContext : NSManagedObjectContext!
+    var mainContext: NSManagedObjectContext!
     
     
     // MARK: - Initializers
@@ -31,7 +30,6 @@ class CoreDataStack: NSObject {
             fatalError("Error loading model from bundle")
         }
         
-        print("Model url found \(modelURL)")
         // Save the modelURL
         self.modelURL = modelURL
         
@@ -40,28 +38,30 @@ class CoreDataStack: NSObject {
             fatalError("Error initializing mom from: \(modelURL)")
         }
         
-        print("Managed Object model created")
-        
         // Save the managedObjectModel
         self.model = mom
         
         // Create the persistent store coordinator
         mainStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: mom)
         
+        // Create the persisting context
+        persistingContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+        
+        // Assign coordinator to persisting context
+        persistingContext.persistentStoreCoordinator = mainStoreCoordinator
+        
         // Create Managed Ojbect Context running on the MainQueue
-        context = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
-        // Assign coordinator to context
-        context.persistentStoreCoordinator = mainStoreCoordinator
+        mainContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
+        mainContext.parentContext = persistingContext
         
         backgroundContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-        backgroundContext.parentContext = context
+        backgroundContext.parentContext = mainContext
 
         
         
         // Add an SQL lite store in the documents folder
         // Create the SQL Store in the background
         //dispatch_sync(dispatch_get_main_queue()){
-        print("Dispatching jobs to grab file")
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
             // get the documents directory.
             let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
@@ -81,10 +81,7 @@ class CoreDataStack: NSObject {
                            NSMigratePersistentStoresAutomaticallyOption: true]
             
             do {
-                print("Trying to add persistent store")
                 try self.mainStoreCoordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.dbURL, options: options)
-                print("Successfully added persistent Store")
-                
             } catch {
                 fatalError("Error migrating store: \(error)")
             }
@@ -94,28 +91,62 @@ class CoreDataStack: NSObject {
 }
 
 extension CoreDataStack {
-    func saveContext() throws{
-        if context.hasChanges{
+    func saveBackgroundContext() throws{
+        if backgroundContext.hasChanges{
             do {
                 try backgroundContext.save()
-                try context.save()
-                
-            } catch {
-                print("From coredatastack failed to saveContext")
             }
-
         }
     }
     
-    func displayUnsavedElements() {
-        print("deleted objects \(context.deletedObjects)")
-        print("inserted objects \(context.insertedObjects)")
-        print("updated objects \(context.updatedObjects)")
-        print("deleted objects \(backgroundContext.deletedObjects)")
-        print("inserted objects \(backgroundContext.insertedObjects)")
-        print("updated objects \(backgroundContext.updatedObjects)")
+    func saveMainContext() throws{
+        if mainContext.hasChanges{
+            do {
+                try mainContext.save()
+            }
+        }
     }
     
+    func savePersistingContext() throws{
+        if persistingContext.hasChanges{
+            do {
+                try persistingContext.save()
+            } 
+        }
+    }
+    
+    func saveToFile() {
+        // We call this synchronously, but it's a very fast
+        // operation (it doesn't hit the disk). We need to know
+        // when it ends so we can call the next save (on the persisting
+        // context). The last save might take some time and is done
+        // in a background queue
+        
+        backgroundContext.performBlockAndWait(){
+            if self.backgroundContext.hasChanges{
+                do{
+                    try self.backgroundContext.save()
+                }catch{
+                    fatalError("Error while saving main context: \(error)")
+                }
+                // Now we save the main
+                self.mainContext.performBlockAndWait(){
+                    do {
+                     try self.saveMainContext()
+                    } catch {
+                        fatalError()
+                    }
+                    self.persistingContext.performBlock(){
+                        do{
+                            try self.persistingContext.save()
+                        }catch{
+                            fatalError("Error while saving persisting context: \(error)")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 

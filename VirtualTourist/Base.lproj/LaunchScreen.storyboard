@@ -26,8 +26,12 @@
                             </imageView>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="vtG-ow-LcA" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="9Zy-0f-JvQ"/>
                             <constraint firstItem="vtG-ow-LcA" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="D6d-Na-zix"/>
                             <constraint firstItem="vtG-ow-LcA" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="DcN-5H-dmn"/>
+                            <constraint firstItem="vtG-ow-LcA" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="O6Z-Pl-BjY"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="vtG-ow-LcA" secondAttribute="bottom" id="Ypm-6h-Js5"/>
+                            <constraint firstAttribute="trailing" secondItem="vtG-ow-LcA" secondAttribute="trailing" id="y2I-ZS-SJv"/>
                         </constraints>
                     </view>
                 </viewController>
