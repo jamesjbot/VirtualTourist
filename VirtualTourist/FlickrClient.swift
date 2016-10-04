@@ -68,6 +68,7 @@ class FlickrClient {
         let searchURL = createURLFromParameters(methodParameters)
         let searchRequest = NSURLRequest(URL: searchURL)
         let session = NSURLSession.sharedSession()
+        session.configuration.timeoutIntervalForRequest = 10
         let task = session.dataTaskWithRequest(searchRequest){
             (data, response, error) in
             self.guardChecks(data, response: response, error: error) {
@@ -75,7 +76,7 @@ class FlickrClient {
                 if !requestSuccess && completionHandlerTopLevel != nil
                 {
                     if let completionHandlerTopLevel = completionHandlerTopLevel {
-                        let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
+                        let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\n\((error?.localizedDescription)!)\nPlease backout to main map and try again"]
                         completionHandlerTopLevel(success: false, results: nil, error: NSError(domain: "FlickrClient", code: 2, userInfo: userInfo))
                     }
                     return
