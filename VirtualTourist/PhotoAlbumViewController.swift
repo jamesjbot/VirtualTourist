@@ -76,7 +76,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     
     @IBOutlet weak var collectionGrid: UICollectionView!
     
+    @IBOutlet weak var initialActivityIndicator: UIActivityIndicatorView!
+    
     // MARK: - IBActions
+    
     // Receives action from the user to either Delete Selected Photos or Download a new Collection
     @IBAction func bottomButtonPressed(sender: AnyObject) {
         switch currentBottomButtonState {
@@ -142,10 +145,19 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             if error != nil {
                 self.displayAlertWindow("Loading Error", msg: (error?.localizedDescription)!, actions: nil)
             }
+            // Stop the main center animation we have data.
+            if self.photoMainFrc?.fetchedObjects?.count > 0 {
+                performUpdatesOnMain(){
+                    self.initialActivityIndicator.stopAnimating()
+                }
+            }
         }
         
         self.flickrClient.searchForPicturesByLatLonByPinByAsync(self.location){
             (success, results, error) -> Void in
+            performUpdatesOnMain(){
+                self.initialActivityIndicator.stopAnimating()
+            }
             if self.photoMainFrc?.fetchedObjects?.count == 0 && error != nil {
                 self.displayAlertWindow("Loading Error", msg: (error?.localizedDescription)!, actions: nil)
             } else {

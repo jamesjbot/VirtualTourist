@@ -178,13 +178,19 @@
                                     <constraint firstItem="bLF-eM-Ps6" firstAttribute="leading" secondItem="bEW-Wu-5sg" secondAttribute="leading" id="pAo-wo-nQ9"/>
                                 </constraints>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Hd2-aD-1V3">
+                                <rect key="frame" x="282" y="281" width="37" height="37"/>
+                                <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="bEW-Wu-5sg" firstAttribute="top" secondItem="nL0-RG-MHn" secondAttribute="bottom" id="Gaw-st-Ess"/>
                             <constraint firstItem="g1a-Gk-kge" firstAttribute="top" secondItem="bEW-Wu-5sg" secondAttribute="bottom" constant="-1" id="Yze-Us-t94"/>
+                            <constraint firstItem="Hd2-aD-1V3" firstAttribute="centerY" secondItem="DGY-9G-MUI" secondAttribute="centerY" id="gTk-yD-Wgz"/>
                             <constraint firstAttribute="trailingMargin" secondItem="bEW-Wu-5sg" secondAttribute="trailing" constant="-20" id="huH-WO-Dlu"/>
                             <constraint firstItem="bEW-Wu-5sg" firstAttribute="leading" secondItem="DGY-9G-MUI" secondAttribute="leadingMargin" constant="-20" id="inu-kL-AjE"/>
+                            <constraint firstItem="Hd2-aD-1V3" firstAttribute="centerX" secondItem="DGY-9G-MUI" secondAttribute="centerX" id="oVZ-6g-krG"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
@@ -192,6 +198,7 @@
                     <connections>
                         <outlet property="bottomButton" destination="bLF-eM-Ps6" id="Dot-17-dzY"/>
                         <outlet property="collectionGrid" destination="FPX-TU-wU2" id="qKL-OU-f23"/>
+                        <outlet property="initialActivityIndicator" destination="Hd2-aD-1V3" id="00o-GY-Axa"/>
                         <outlet property="mapView" destination="QZG-QS-EEl" id="a2X-tf-hhi"/>
                     </connections>
                 </viewController>
