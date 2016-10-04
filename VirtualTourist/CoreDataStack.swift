@@ -123,25 +123,23 @@ extension CoreDataStack {
         // in a background queue
         
         backgroundContext.performBlockAndWait(){
-            if self.backgroundContext.hasChanges{
-                do{
-                    try self.backgroundContext.save()
-                }catch{
-                    fatalError("Error while saving main context: \(error)")
+            do{
+                try self.backgroundContext.save()
+            }catch{
+                fatalError("Error while saving main context: \(error)")
+            }
+            // Now we save the main
+            self.mainContext.performBlockAndWait(){
+                do {
+                    try self.saveMainContext()
+                } catch {
+                    fatalError()
                 }
-                // Now we save the main
-                self.mainContext.performBlockAndWait(){
-                    do {
-                     try self.saveMainContext()
-                    } catch {
-                        fatalError()
-                    }
-                    self.persistingContext.performBlockAndWait(){
-                        do{
-                            try self.persistingContext.save()
-                        }catch{
-                            fatalError("Error while saving persisting context: \(error)")
-                        }
+                self.persistingContext.performBlockAndWait(){
+                    do{
+                        try self.persistingContext.save()
+                    }catch{
+                        fatalError("Error while saving persisting context: \(error)")
                     }
                 }
             }
