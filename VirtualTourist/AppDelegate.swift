@@ -10,25 +10,11 @@ import UIKit
 import CoreData
 import Foundation
 
-//func file(input1 : String , input2: String) {
-//    
-//}
-
-
-// Solve errors when downloading asynchronously
-func performUpdatesOnMain(updates: () -> Void) {
-    dispatch_async(dispatch_get_main_queue()) {
-        updates()
-    }
-}
-
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     let stack = CoreDataStack(modelName: "VirtualTourist")
-
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
