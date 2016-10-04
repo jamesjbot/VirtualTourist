@@ -143,13 +143,13 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
                 self.displayAlertWindow("Loading Error", msg: (error?.localizedDescription)!, actions: nil)
             }
         }
-
+        
         self.flickrClient.searchForPicturesByLatLonByPinByAsync(self.location){
             (success, results, error) -> Void in
-            if success {
-                self.decideHowToProceedOnDataAvailability()
-            } else {
+            if self.photoMainFrc?.fetchedObjects?.count == 0 && error != nil {
                 self.displayAlertWindow("Loading Error", msg: (error?.localizedDescription)!, actions: nil)
+            } else {
+                self.decideHowToProceedOnDataAvailability()
             }
         }
         
@@ -235,7 +235,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // Fetches photos from Coredata
     func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
         let request = NSFetchRequest(entityName: "Photo")
-        request.sortDescriptors = []
+            request.sortDescriptors = []
         let p = NSPredicate(format: "pin = %@", argumentArray: [location])
         request.predicate = p
         photoMainFrc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -246,6 +246,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             completionHandler(success: false, error: NSError(domain: "PhotoAlbum", code: 0, userInfo: userInfo))
             return
         }
+        // This is need to signal viewDidLoad
+        completionHandler(success: true, error: nil)
     }
     
     // MARK: - UICollectionViewDataSource
@@ -344,7 +346,9 @@ extension PhotoAlbumViewController : NSFetchedResultsControllerDelegate {
             for indexPath in self.updateIndexPaths {
                 self.collectionGrid.reloadItemsAtIndexPaths([indexPath])
             }
+            self.coredata?.saveToFile()
             } , completion: nil)
+        
     }
 }
 
