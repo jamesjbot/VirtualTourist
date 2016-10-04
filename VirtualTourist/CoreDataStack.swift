@@ -136,7 +136,7 @@ extension CoreDataStack {
                     } catch {
                         fatalError()
                     }
-                    self.persistingContext.performBlock(){
+                    self.persistingContext.performBlockAndWait(){
                         do{
                             try self.persistingContext.save()
                         }catch{
