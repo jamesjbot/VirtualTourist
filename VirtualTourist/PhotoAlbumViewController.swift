@@ -77,7 +77,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         case BottomButtonState.Delete:
             
             //Save references to maincontext managedobjects for later deletion
-            let context  = (UIApplication.sharedApplication().delegate as! AppDelegate).stack?.mainContext
             var objects = [Photo]()
             newSelectedIndexPaths = newSelectedIndexPaths.sort(sortFunc)
             for i in newSelectedIndexPaths {
@@ -90,7 +89,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             
             // Delete main context managed objects
             for i in objects {
-                context?.deleteObject(i)
+                mainContext.deleteObject(i)
             }
             
             // Clear the selection array so reused cells will display correctly
@@ -98,7 +97,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             
             // Save managedobject changes into the persistent context
             do {
-                try context!.save()
+                try mainContext.save()
             } catch _ {
                 fatalError()
             }
