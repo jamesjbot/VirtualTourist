@@ -3,79 +3,79 @@
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "VirtualTourist_76-3.png",
+      "filename" : "VirtualTourist_76.png",
       "scale" : "2x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "VirtualTourist_76.png",
+      "filename" : "VirtualTourist_120.png",
       "scale" : "3x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "iphone",
-      "filename" : "VirtualTourist_76-4.png",
-      "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
       "filename" : "VirtualTourist_76-1.png",
-      "scale" : "3x"
+      "scale" : "2x"
     },
     {
-      "size" : "60x60",
+      "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "VirtualTourist_76-5.png",
-      "scale" : "2x"
+      "filename" : "VirtualTourist_120-1.png",
+      "scale" : "3x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
       "filename" : "VirtualTourist_76-2.png",
+      "scale" : "2x"
+    },
+    {
+      "size" : "60x60",
+      "idiom" : "iphone",
+      "filename" : "VirtualTourist_120-2.png",
       "scale" : "3x"
     },
     {
       "size" : "29x29",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-6.png",
+      "filename" : "VirtualTourist_76-3.png",
       "scale" : "1x"
     },
     {
       "size" : "29x29",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-7.png",
+      "filename" : "VirtualTourist_512-2.png",
       "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-8.png",
+      "filename" : "VirtualTourist_180-1.png",
       "scale" : "1x"
     },
     {
       "size" : "40x40",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-9.png",
+      "filename" : "VirtualTourist_512-1.png",
       "scale" : "2x"
     },
     {
       "size" : "76x76",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-10.png",
+      "filename" : "VirtualTourist_180.png",
       "scale" : "1x"
     },
     {
       "size" : "76x76",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-11.png",
+      "filename" : "VirtualTourist_512.png",
       "scale" : "2x"
     },
     {
       "size" : "83.5x83.5",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76-12.png",
+      "filename" : "VirtualTourist_1024.png",
       "scale" : "2x"
     }
   ],

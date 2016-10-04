@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G1004" minimumToolsVersion="Automatic">
     <entity name="Photo" representedClassName=".Photo" syncable="YES">
+        <attribute name="dataIsNil" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="imageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="pin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Pin" inverseName="photoalbum" inverseEntity="Pin" syncable="YES"/>
@@ -12,7 +13,7 @@
         <relationship name="photoalbum" toMany="YES" deletionRule="Cascade" destinationEntity="Photo" inverseName="pin" inverseEntity="Photo" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Photo" positionX="-63" positionY="0" width="128" height="90"/>
+        <element name="Photo" positionX="-63" positionY="0" width="128" height="105"/>
         <element name="Pin" positionX="-63" positionY="-18" width="128" height="105"/>
     </elements>
 </model>
