@@ -138,7 +138,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             }
             // Stop the main center animation we have data.
             if self.photoMainFrc?.fetchedObjects?.count > 0 {
-                performUpdatesOnMain(){
+                self.performUpdatesOnMain(){
                     self.initialActivityIndicator.stopAnimating()
                 }
             }
@@ -146,7 +146,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         
         self.flickrClient.searchForPicturesByLatLonByPinByAsync(self.location){
             (success, results, error) -> Void in
-            performUpdatesOnMain(){
+            self.performUpdatesOnMain(){
                 self.initialActivityIndicator.stopAnimating()
             }
             if self.photoMainFrc?.fetchedObjects?.count == 0 && error != nil {
@@ -238,7 +238,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // Fetches photos from Coredata
     func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
         let request = NSFetchRequest(entityName: "Photo")
-            request.sortDescriptors = []
+        request.sortDescriptors = [NSSortDescriptor(key: "dataIsNil", ascending: true)]
         let p = NSPredicate(format: "pin = %@", argumentArray: [location])
         request.predicate = p
         photoMainFrc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -249,7 +249,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             completionHandler(success: false, error: NSError(domain: "PhotoAlbum", code: 0, userInfo: userInfo))
             return
         }
-        // This is need to signal viewDidLoad
+    // This is need to signal viewDidLoad
         completionHandler(success: true, error: nil)
     }
     
@@ -393,6 +393,13 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
 extension PhotoAlbumViewController {
     
     // MARK: Utility
+    
+    // Function to performUIUpdates on main queue
+    func performUpdatesOnMain(updates: () -> Void) {
+        dispatch_async(dispatch_get_main_queue()) {
+            updates()
+        }
+    }
     
     func sortFunc(i0: NSIndexPath, i1: NSIndexPath) -> Bool {
         return i0.item > i1.item
