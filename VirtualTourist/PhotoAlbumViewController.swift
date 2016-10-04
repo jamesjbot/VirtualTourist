@@ -238,7 +238,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // Fetches photos from Coredata
     func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
         let request = NSFetchRequest(entityName: "Photo")
-        request.sortDescriptors = [NSSortDescriptor(key: "dataIsNil", ascending: true)]
+        request.sortDescriptors = []
         let p = NSPredicate(format: "pin = %@", argumentArray: [location])
         request.predicate = p
         photoMainFrc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
