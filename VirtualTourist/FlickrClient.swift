@@ -175,7 +175,6 @@ class FlickrClient {
                     let photoForUpdate = self.coreData!.backgroundContext.objectWithID(updateManagedObjectID) as! Photo
                     let outputData : NSData = UIImagePNGRepresentation(UIImage(data: data!)!)!
                     photoForUpdate.setImage(outputData)
-                    //TODOphotoForUpdate.setValue(outputData, forKey: "imageData")
                     do {
                         try self.coreData!.backgroundContext.save()
                     }
