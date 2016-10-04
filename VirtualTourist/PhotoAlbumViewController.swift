@@ -12,21 +12,7 @@ import MapKit
 import CoreData
 
 class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
-    
 
-    
-    private var insertedIndexPaths: [NSIndexPath]!
-    private var deletedIndexPaths: [NSIndexPath]!
-    private var updateIndexPaths: [NSIndexPath]!
-    private var newSelectedIndexPaths: [NSIndexPath]! = [NSIndexPath]()
-
-    // MARK: - Debug statements
-    
-    private let coredata = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
-    private let mainContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.mainContext)!
-    private let backgroundContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.backgroundContext)!
-    private let persistentContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.persistingContext)!
-    
     // MARK: - Constants
     
     enum DataPopulationState {
@@ -45,12 +31,17 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         static let DequeIdentifier = "PVCell"
     }
     
-    private var sectionInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+    private let coredata = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
+    private let mainContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.mainContext)!
+    private let sectionInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
     private let minimumSpacing = CGFloat(1)
     private let flickrClient = FlickrClient.sharedInstance()
     
     // MARK: - Variables
-    
+    private var insertedIndexPaths: [NSIndexPath]!
+    private var deletedIndexPaths: [NSIndexPath]!
+    private var updateIndexPaths: [NSIndexPath]!
+    private var newSelectedIndexPaths: [NSIndexPath]! = [NSIndexPath]()
     var localPhotoURLs = [NSURL]()
     var dbAvailability: DataPopulationState = DataPopulationState.BothCoreDataAndSearchAvailable
     var currentBottomButtonState : BottomButtonState = BottomButtonState.NewCollection {
@@ -92,7 +83,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             for i in newSelectedIndexPaths {
                 let temp : Photo = photoMainFrc?.objectAtIndexPath(i) as! Photo
                 objects.append(temp)
-                var cell = self.collectionGrid.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: i) as! PhotoViewCell
+                let cell = self.collectionGrid.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: i) as! PhotoViewCell
                 cell.didUserSelect = false
                 cell.activityIndic.hidden = true
             }
@@ -108,7 +99,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             // Save managedobject changes into the persistent context
             do {
                 try context!.save()
-            } catch let error {
+            } catch _ {
                 fatalError()
             }
             updateBottomButton()
@@ -277,7 +268,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     
     // Download initiated on async task on mainqueue
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        var cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: indexPath) as! PhotoViewCell
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: indexPath) as! PhotoViewCell
         cell.selected = false
         cell.imageView!.alpha = 1.0
         cell.imageView?.image = nil
@@ -363,7 +354,6 @@ extension PhotoAlbumViewController : NSFetchedResultsControllerDelegate {
         
     }
 }
-
 
 // MARK: UICollectionViewDelegate
 extension PhotoAlbumViewController: UICollectionViewDelegate {
