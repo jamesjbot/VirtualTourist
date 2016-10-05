@@ -17,9 +17,9 @@ class CoreDataStack: NSObject {
     private var mainStoreCoordinator: NSPersistentStoreCoordinator!
     private var modelURL: NSURL!
     private var dbURL: NSURL!
-    var persistingContext: NSManagedObjectContext!
-    var backgroundContext : NSManagedObjectContext!
-    var mainContext: NSManagedObjectContext!
+    internal var persistingContext: NSManagedObjectContext!
+    internal var backgroundContext : NSManagedObjectContext!
+    internal var mainContext: NSManagedObjectContext!
     
     
     // MARK: - Initializers
@@ -91,7 +91,7 @@ class CoreDataStack: NSObject {
 }
 
 extension CoreDataStack {
-    func saveBackgroundContext() throws{
+    internal func saveBackgroundContext() throws{
         if backgroundContext.hasChanges{
             do {
                 try backgroundContext.save()
@@ -99,7 +99,7 @@ extension CoreDataStack {
         }
     }
     
-    func saveMainContext() throws{
+    internal func saveMainContext() throws{
         if mainContext.hasChanges{
             do {
                 try mainContext.save()
@@ -107,7 +107,7 @@ extension CoreDataStack {
         }
     }
     
-    func savePersistingContext() throws{
+    internal func savePersistingContext() throws{
         if persistingContext.hasChanges{
             do {
                 try persistingContext.save()
@@ -115,7 +115,7 @@ extension CoreDataStack {
         }
     }
     
-    func saveToFile() {
+    internal func saveToFile() {
         // We call this synchronously, but it's a very fast
         // operation (it doesn't hit the disk). We need to know
         // when it ends so we can call the next save (on the persisting
