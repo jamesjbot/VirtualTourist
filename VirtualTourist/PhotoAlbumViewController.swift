@@ -55,7 +55,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             }
         }
     }
-    private var location: Pin!
+    internal var location: Pin!
     private var photoMainFrc : NSFetchedResultsController?
     private var sizeOfCell: CGFloat!
     private var flowLayout : UICollectionViewFlowLayout?
