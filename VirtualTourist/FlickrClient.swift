@@ -93,7 +93,9 @@ class FlickrClient {
                     // Perform model updates
                     let photosElement = dict![Constants.FlickrResponseKeys.Photos]
                     self.photoSearchResultsArray = photosElement![Constants.FlickrResponseKeys.Photo] as! [[String:AnyObject]]
-                    completionHandlerTopLevel!(success: true, results: photosElement![Constants.FlickrResponseKeys.Photo] as? NSData, error: nil)
+                    if let completionHandlerTopLevel = completionHandlerTopLevel {
+                        completionHandlerTopLevel(success: true, results: photosElement![Constants.FlickrResponseKeys.Photo] as? NSData, error: nil)
+                    }
                 }
             }
         }
@@ -163,7 +165,7 @@ class FlickrClient {
     }
     
     // Download images in the background then update Coredata when complete
-    func downloadImageToCoreData( aturl: NSURL, forPin: Pin, updateManagedObjectID: NSManagedObjectID, index: NSIndexPath) {
+    func downloadImageToCoreData( aturl: NSURL, forPin: Pin, updateManagedObjectID: NSManagedObjectID, index: NSIndexPath?) {
         let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithURL(aturl){
             (data, response, error) -> Void in
@@ -185,6 +187,26 @@ class FlickrClient {
             }
         }
         task.resume()
+    }
+    
+    func prefetchImages(location: Pin){
+        pinLocation = location
+        searchForPicturesByLatLonByPinByAsync(location){
+            (success, results, error) -> Void in
+            if success {
+                self.populateCoreDataWithSearchResultsInFlickrClient(){
+                    (success, error) -> Void in
+                    if success {
+                        let bfrc = self.getBackgroundContextFetchedResultsController()
+                        for i in bfrc?.fetchedObjects as! [Photo] {
+                            dispatch_async(dispatch_get_main_queue()){
+                                self.downloadImageToCoreData(NSURL(string: i.url!)!, forPin: location, updateManagedObjectID: i.objectID, index: nil)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // MARK: Utilities
