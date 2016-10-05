@@ -28,7 +28,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     
     var userSelectedPin: Pin!
     
-    // MARK: IBOutlets
+    // MARK: IBOutlets    
     @IBOutlet weak var prefetchSwitch: UISwitch!
     
     @IBOutlet weak var tapPinsHeight: NSLayoutConstraint!
