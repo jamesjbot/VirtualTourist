@@ -53,7 +53,7 @@ class FlickrClient {
     func searchForPicturesByLatLonByPinByAsync(inputLocation: Pin ,
                                         completionHandlerTopLevel: ((success: Bool, results: NSData?, error: NSError?) -> Void )?
         ){
-        self.pinLocation = inputLocation
+        pinLocation = inputLocation
         let methodParameters = [
             Constants.FlickrParameterKeys.Method : Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey : Constants.FlickrParameterValues.APIKey,
@@ -109,11 +109,11 @@ class FlickrClient {
             photoSearchResultsArray.count : Constants.Flickr.MaximumShownImages)
         let acceptableRange = photoSearchResultsArray.count - shownImages
         let randomBaseIndex = GKRandomDistribution(lowestValue: 0,highestValue: acceptableRange).nextInt()
-        self.newCollection.removeAll()
+        newCollection.removeAll()
         var index = 0
         for x in randomBaseIndex ..< randomBaseIndex+shownImages {
             index += 1
-            self.newCollection.append(constructImageURL(photoSearchResultsArray[x]))
+            newCollection.append(constructImageURL(photoSearchResultsArray[x]))
         }
     }
     

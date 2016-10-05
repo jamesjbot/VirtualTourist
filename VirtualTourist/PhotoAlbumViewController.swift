@@ -62,11 +62,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // MARK: - IBOutlets
     
     @IBOutlet weak var bottomButton: UIButton!
-    
     @IBOutlet weak var mapView: MKMapView!
-    
     @IBOutlet weak var collectionGrid: UICollectionView!
-    
     @IBOutlet weak var initialActivityIndicator: UIActivityIndicatorView!
     
     // MARK: - IBActions
@@ -82,7 +79,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             for i in newSelectedIndexPaths {
                 let temp : Photo = photoMainFrc?.objectAtIndexPath(i) as! Photo
                 objects.append(temp)
-                let cell = self.collectionGrid.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: i) as! PhotoViewCell
+                let cell = collectionGrid.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: i) as! PhotoViewCell
                 cell.didUserSelect = false
                 cell.activityIndic.hidden = true
             }
@@ -137,13 +134,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             }
             // Stop the main center animation we have data.
             if self.photoMainFrc?.fetchedObjects?.count > 0 {
-                self.performUpdatesOnMain(){
-                    self.initialActivityIndicator.stopAnimating()
-                }
+                self.performUpdatesOnMain(){ self.initialActivityIndicator.stopAnimating() }
             }
         }
         
-        self.flickrClient.searchForPicturesByLatLonByPinByAsync(self.location){
+        flickrClient.searchForPicturesByLatLonByPinByAsync(self.location){
             (success, results, error) -> Void in
             self.performUpdatesOnMain(){
                 self.initialActivityIndicator.stopAnimating()
@@ -157,6 +152,23 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         
         currentBottomButtonState = BottomButtonState.NewCollection
         
+        initializeMapConfiguration()
+        
+        // CollectionView configuration
+        setDeviceSpecificSizeOfCell()
+        
+        // Set size of cells on the collectionview
+        initializeFlowLayout()
+        
+        // Set this CollectionView to receive updates
+        collectionGrid.dataSource = self
+        collectionGrid.delegate = self
+        collectionGrid.allowsMultipleSelection = true
+        collectionGrid.allowsSelection = true
+        photoMainFrc?.delegate = self
+    }
+    
+    func initializeMapConfiguration(){
         // MapView configuration
         let span = MKCoordinateSpanMake(3 , 3)
         let cll = CLLocationCoordinate2D(latitude: location.latitude as! Double, longitude: location.longitude as! Double)
@@ -165,21 +177,22 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         let annotation = MKPointAnnotation()
         annotation.coordinate = CLLocationCoordinate2D(latitude: location.latitude as! Double, longitude: location.longitude as! Double)
         mapView.addAnnotation(annotation)
-        
-        // CollectionView configuration
-        setDeviceSpecificSizeOfCell()
-        // Set size of cells on the collectionview
-        flowLayout = UICollectionViewFlowLayout()
-        initializeFlowLayout()
-        
-        // Set this CollectionView to receive updates
-        collectionGrid.dataSource = self
-        collectionGrid.delegate = self
-        collectionGrid.allowsMultipleSelection = true
-        collectionGrid.allowsSelection = true
-        self.photoMainFrc?.delegate = self
     }
     
+    // Initialize the CollectionViewFlowlayout
+    func initializeFlowLayout() {
+        flowLayout = UICollectionViewFlowLayout()
+        flowLayout!.itemSize = CGSize(width: sizeOfCell, height: sizeOfCell)
+        flowLayout!.minimumInteritemSpacing = minimumSpacing
+        flowLayout!.minimumLineSpacing = minimumSpacing
+        flowLayout!.sectionInset = sectionInsets
+        collectionGrid.collectionViewLayout = flowLayout!
+    }
+    
+    // Sets the size of CollectionViewCells
+    func setDeviceSpecificSizeOfCell(){
+        sizeOfCell = (view.frame.width - 6*minimumSpacing)/3 - 5
+    }
     func decideHowToProceedOnDataAvailability(){
         if photoMainFrc?.fetchedObjects?.count < 1 { // Coredata empty
             if flickrClient.photoSearchResultsArray.count < 1 { // Search Empty
@@ -195,7 +208,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             }
         }
         
-        // The act of coredta fetching results will populate the screen
+        // The act of coredata fetching results will populate the screen naturally
+        
         // Reset selection array
         newSelectedIndexPaths.removeAll()
         switch dbAvailability {
@@ -203,7 +217,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             // Do nothing CollectionView will initially load itself from the database
             break
         case .BothCoreDataAndSearchEmpty:
-            self.displayAlertWindow("No Photos", msg: "No pictures taken at this location\n go back and choose another location. Press 'OK' to go back to main map!", actions: [self.dismissAction()])
+            displayAlertWindow("No Photos", msg: "No pictures taken at this location\n go back and choose another location. Press 'OK' to go back to main map!", actions: nil)
             break
         case .OnlyCoreDataAvailable:
             // Do nothing CollectionView will initially load itself from the database
@@ -220,35 +234,22 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         }
     }
     
-    // Initialize the CollectionViewFlowlayout
-    func initializeFlowLayout() {
-        flowLayout!.itemSize = CGSize(width: sizeOfCell, height: sizeOfCell)
-        flowLayout!.minimumInteritemSpacing = minimumSpacing
-        flowLayout!.minimumLineSpacing = minimumSpacing
-        flowLayout!.sectionInset = sectionInsets
-        collectionGrid.collectionViewLayout = flowLayout!
-    }
-    
-    // Sets the size of CollectionViewCells
-    func setDeviceSpecificSizeOfCell(){
-        self.sizeOfCell = (view.frame.width - 6*minimumSpacing)/3 - 5
-    }
+
     
     // Fetches photos from Coredata
     func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
         let request = NSFetchRequest(entityName: "Photo")
         request.sortDescriptors = []
-        let p = NSPredicate(format: "pin = %@", argumentArray: [location])
-        request.predicate = p
+        request.predicate = NSPredicate(format: "pin = %@", argumentArray: [location])
         photoMainFrc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
         do {
-            try self.photoMainFrc?.performFetch()
+            try photoMainFrc?.performFetch()
         } catch {
             let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Reading Photos\nPlease try again"]
             completionHandler(success: false, error: NSError(domain: "PhotoAlbum", code: 0, userInfo: userInfo))
             return
         }
-    // This is need to signal viewDidLoad
+        // This is need to signal viewDidLoad
         completionHandler(success: true, error: nil)
     }
     
@@ -273,7 +274,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         cell.imageView?.image = nil
         cell.activityIndic.hidden = true
         cell.activityIndic.stopAnimating()
-        let coreDataPhoto = self.photoMainFrc?.objectAtIndexPath(indexPath) as! Photo
+        let coreDataPhoto = photoMainFrc?.objectAtIndexPath(indexPath) as! Photo
         if newSelectedIndexPaths.contains(indexPath){
             cell.imageView?.alpha = 0.5
         } else {
@@ -284,10 +285,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         case true:
             let data : NSData = coreDataPhoto.imageData!
             let im = UIImage(data: data)
-            cell.activityIndic.stopAnimating()
             cell.activityIndic.hidden = true
-            cell.coreDataObjectID = coreDataPhoto.objectID
+            cell.activityIndic.stopAnimating()
             cell.imageView?.image = im
+            cell.coreDataObjectID = coreDataPhoto.objectID
             cell.url = coreDataPhoto.url
             return cell
             
@@ -375,7 +376,7 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
         
         updateBottomButton()
         // Force cell to rerender
-        let _ = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: indexPath) as! PhotoViewCell
+        //TODO delete does nothing let _ = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: indexPath) as! PhotoViewCell
         collectionView.reloadItemsAtIndexPaths([indexPath])
     }
     
