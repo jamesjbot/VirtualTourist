@@ -29,6 +29,8 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     var userSelectedPin: Pin!
     
     // MARK: IBOutlets
+    @IBOutlet weak var prefetchSwitch: UISwitch!
+    
     @IBOutlet weak var tapPinsHeight: NSLayoutConstraint!
     
     @IBOutlet var longPressRecognizer: UILongPressGestureRecognizer!
@@ -88,6 +90,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
             insertPinIntoCoreData()
             // Clear out floating annotation
             floatingAnnotation = nil
+            
         default:
             break
         }
@@ -180,9 +183,12 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     func insertPinIntoCoreData(){
         // Create coredata pin and immediately save
         coreDataStack?.backgroundContext.performBlockAndWait(){
-            let _ = Pin(input: self.floatingAnnotation, context: (self.coreDataStack?.backgroundContext)!)
+            let newPin = Pin(input: self.floatingAnnotation, context: (self.coreDataStack?.backgroundContext)!)
             // Save pin in core data
             self.coreDataStack?.saveToFile()
+            if self.prefetchSwitch.on {
+                FlickrClient.sharedInstance().prefetchImages(newPin)
+            }
         }
     }
     
