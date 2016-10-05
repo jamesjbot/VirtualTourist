@@ -16,10 +16,11 @@ class FlickrClient {
     
     // MARK: Variables
     
-    var photoSearchResultsArray : [[String:AnyObject]] = [[String:AnyObject]]()
+    internal var photoSearchResultsArray : [[String:AnyObject]] = [[String:AnyObject]]()
+    
     private var newCollection:[NSURL] = [NSURL]()
     
-    var pinLocation: Pin?
+    private var pinLocation: Pin?
     
     private let coreData = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
     
@@ -36,7 +37,7 @@ class FlickrClient {
     // MARK: Functions
     
     // Create a boundingBox for flickr search parameters
-    func boundingboxConstruct() -> String {
+    private func boundingboxConstruct() -> String {
         if let latitude : Double = Double((pinLocation?.latitude!)!),
             let longitude : Double = Double((pinLocation?.longitude)!) {
             let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
@@ -50,7 +51,7 @@ class FlickrClient {
     }
     
     // Use Flickr's RESTful api to get search results and store locally
-    func searchForPicturesByLatLonByPinByAsync(inputLocation: Pin ,
+    internal func searchForPicturesByLatLonByPinByAsync(inputLocation: Pin ,
                                         completionHandlerTopLevel: ((success: Bool, results: NSData?, error: NSError?) -> Void )?
         ){
         pinLocation = inputLocation
@@ -118,7 +119,7 @@ class FlickrClient {
     }
     
     // Two performwaitandblocks in background context
-    func populateCoreDataWithSearchResultsInFlickrClient(completionHandler: ((success: Bool, error: NSError?) -> Void)){
+    internal func populateCoreDataWithSearchResultsInFlickrClient(completionHandler: ((success: Bool, error: NSError?) -> Void)){
         
         seperateNewCollectionFromResults()
         
@@ -165,7 +166,7 @@ class FlickrClient {
     }
     
     // Download images in the background then update Coredata when complete
-    func downloadImageToCoreData( aturl: NSURL, forPin: Pin, updateManagedObjectID: NSManagedObjectID, index: NSIndexPath?) {
+    internal func downloadImageToCoreData( aturl: NSURL, forPin: Pin, updateManagedObjectID: NSManagedObjectID, index: NSIndexPath?) {
         let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithURL(aturl){
             (data, response, error) -> Void in
@@ -189,7 +190,7 @@ class FlickrClient {
         task.resume()
     }
     
-    func prefetchImages(location: Pin){
+    internal func prefetchImages(location: Pin){
         pinLocation = location
         searchForPicturesByLatLonByPinByAsync(location){
             (success, results, error) -> Void in
