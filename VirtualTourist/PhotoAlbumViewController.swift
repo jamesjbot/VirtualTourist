@@ -30,7 +30,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     enum Constants {
         static let DequeIdentifier = "PVCell"
     }
-    
+    private let NumberOfColumns = CGFloat(3)
+    private let NumberOfSpacesBetweenColumns = CGFloat(2)
     private let coredata = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
     private let mainContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.mainContext)!
     private let sectionInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
@@ -189,7 +190,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     
     // Sets the size of CollectionViewCells
     func setDeviceSpecificSizeOfCell(){
-        sizeOfCell = (view.frame.width - 6*minimumSpacing)/3 - 5
+        sizeOfCell = (view.frame.width - NumberOfSpacesBetweenColumns*minimumSpacing - sectionInsets.left - sectionInsets.right)/NumberOfColumns
     }
     func decideHowToProceedOnDataAvailability(){
         if photoMainFrc?.fetchedObjects?.count < 1 { // Coredata empty
