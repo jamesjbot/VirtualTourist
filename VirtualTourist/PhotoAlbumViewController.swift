@@ -107,7 +107,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             // Remove all selections
             newSelectedIndexPaths.removeAll()
             updateBottomButton()
-            flickrClient.pinLocation = location
             flickrClient.populateCoreDataWithSearchResultsInFlickrClient(){
                 (success, error ) -> Void in
                 if error != nil {
