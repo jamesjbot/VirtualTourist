@@ -163,6 +163,10 @@
                                                 </connections>
                                             </collectionViewCell>
                                         </cells>
+                                        <connections>
+                                            <outlet property="dataSource" destination="7N6-YO-O8m" id="8HG-qM-3Tc"/>
+                                            <outlet property="delegate" destination="7N6-YO-O8m" id="Z5c-aT-Hhl"/>
+                                        </connections>
                                     </collectionView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bLF-eM-Ps6">
                                         <rect key="frame" x="0.0" y="433" width="600" height="60"/>

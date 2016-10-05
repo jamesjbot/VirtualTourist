@@ -161,8 +161,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         initializeFlowLayout()
         
         // Set this CollectionView to receive updates
-        collectionGrid.dataSource = self
-        collectionGrid.delegate = self
         collectionGrid.allowsMultipleSelection = true
         collectionGrid.allowsSelection = true
         photoMainFrc?.delegate = self
