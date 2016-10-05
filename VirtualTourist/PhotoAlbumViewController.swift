@@ -374,7 +374,6 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
         
         updateBottomButton()
         // Force cell to rerender
-        //TODO delete does nothing let _ = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: indexPath) as! PhotoViewCell
         collectionView.reloadItemsAtIndexPaths([indexPath])
     }
     
