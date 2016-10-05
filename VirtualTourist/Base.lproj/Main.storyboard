@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--MainMapView-->
@@ -52,6 +53,15 @@
                         </variation>
                     </view>
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="oTz-DW-rmG">
+                        <leftBarButtonItems>
+                            <barButtonItem title="Prefetch Images" id="0kq-QO-4gn"/>
+                            <barButtonItem title="Prefetch Images" style="plain" id="dQR-6M-qYd">
+                                <switch key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" id="shA-zL-j4d">
+                                    <rect key="frame" x="153" y="6" width="51" height="31"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                </switch>
+                            </barButtonItem>
+                        </leftBarButtonItems>
                         <barButtonItem key="rightBarButtonItem" title="Edit" id="Owb-b8-p2X">
                             <connections>
                                 <action selector="editButtonPressed:" destination="BYZ-38-t0r" id="Qjp-dt-4Pk"/>
@@ -59,9 +69,12 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="barLabel" destination="0kq-QO-4gn" id="N4H-hS-iDY"/>
+                        <outlet property="barSwitch" destination="dQR-6M-qYd" id="t9B-Ys-Bse"/>
                         <outlet property="editButton" destination="Owb-b8-p2X" id="YVB-1b-Z6l"/>
                         <outlet property="longPressRecognizer" destination="kPI-4x-543" id="KVK-R7-qlB"/>
                         <outlet property="mapView" destination="nBW-na-7Za" id="l4E-8a-r3Z"/>
+                        <outlet property="mySwitch" destination="shA-zL-j4d" id="OMc-kB-OxR"/>
                         <outlet property="tapPinsHeight" destination="Umf-ri-YfM" id="Q24-aL-MyD"/>
                         <outlet property="tapPinsToDeleteLabel" destination="hmK-iP-Waw" id="Qcy-qP-Lon"/>
                         <segue destination="7N6-YO-O8m" kind="show" identifier="transistionToPhotoGrid" id="von-1x-Hk6"/>
