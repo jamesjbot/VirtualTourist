@@ -15,19 +15,19 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 
     // MARK: - Constants
     
-    enum DataPopulationState {
+    private enum DataPopulationState {
         case BothCoreDataAndSearchEmpty
         case OnlySearchAvailable
         case OnlyCoreDataAvailable
         case BothCoreDataAndSearchAvailable
     }
     
-    enum BottomButtonState {
+    private enum BottomButtonState {
         case NewCollection
         case Delete
     }
     
-    enum Constants {
+    private enum Constants {
         static let DequeIdentifier = "PVCell"
     }
     private let NumberOfColumns = CGFloat(3)
@@ -43,9 +43,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     private var deletedIndexPaths: [NSIndexPath]!
     private var updateIndexPaths: [NSIndexPath]!
     private var newSelectedIndexPaths: [NSIndexPath]! = [NSIndexPath]()
-    var localPhotoURLs = [NSURL]()
-    var dbAvailability: DataPopulationState = DataPopulationState.BothCoreDataAndSearchAvailable
-    var currentBottomButtonState : BottomButtonState = BottomButtonState.NewCollection {
+    private var localPhotoURLs = [NSURL]()
+    private var dbAvailability: DataPopulationState = DataPopulationState.BothCoreDataAndSearchAvailable
+    private var currentBottomButtonState : BottomButtonState = BottomButtonState.NewCollection {
         didSet{
             switch currentBottomButtonState{
             case .Delete:
@@ -55,8 +55,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             }
         }
     }
-    var location: Pin!
-    var photoMainFrc : NSFetchedResultsController?
+    private var location: Pin!
+    private var photoMainFrc : NSFetchedResultsController?
     private var sizeOfCell: CGFloat!
     private var flowLayout : UICollectionViewFlowLayout?
     
@@ -103,6 +103,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             
         // Release selection array, reset UI, and then get a new collection from the web
         case BottomButtonState.NewCollection:
+            
             // Remove all selections
             newSelectedIndexPaths.removeAll()
             updateBottomButton()
@@ -167,7 +168,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         photoMainFrc?.delegate = self
     }
     
-    func initializeMapConfiguration(){
+    private func initializeMapConfiguration(){
         // MapView configuration
         let span = MKCoordinateSpanMake(3 , 3)
         let cll = CLLocationCoordinate2D(latitude: location.latitude as! Double, longitude: location.longitude as! Double)
@@ -179,7 +180,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     }
     
     // Initialize the CollectionViewFlowlayout
-    func initializeFlowLayout() {
+    private func initializeFlowLayout() {
         flowLayout = UICollectionViewFlowLayout()
         flowLayout!.itemSize = CGSize(width: sizeOfCell, height: sizeOfCell)
         flowLayout!.minimumInteritemSpacing = minimumSpacing
@@ -189,10 +190,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     }
     
     // Sets the size of CollectionViewCells
-    func setDeviceSpecificSizeOfCell(){
+    private func setDeviceSpecificSizeOfCell(){
         sizeOfCell = (view.frame.width - NumberOfSpacesBetweenColumns*minimumSpacing - sectionInsets.left - sectionInsets.right)/NumberOfColumns
     }
-    func decideHowToProceedOnDataAvailability(){
+    
+    private func decideHowToProceedOnDataAvailability(){
         if photoMainFrc?.fetchedObjects?.count < 1 { // Coredata empty
             if flickrClient.photoSearchResultsArray.count < 1 { // Search Empty
                 dbAvailability = DataPopulationState.BothCoreDataAndSearchEmpty
@@ -233,10 +235,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         }
     }
     
-
-    
     // Fetches photos from Coredata
-    func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
+    private func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
         let request = NSFetchRequest(entityName: "Photo")
         request.sortDescriptors = []
         request.predicate = NSPredicate(format: "pin = %@", argumentArray: [location])
@@ -394,18 +394,18 @@ extension PhotoAlbumViewController {
     // MARK: Utility
     
     // Function to performUIUpdates on main queue
-    func performUpdatesOnMain(updates: () -> Void) {
+    private func performUpdatesOnMain(updates: () -> Void) {
         dispatch_async(dispatch_get_main_queue()) {
             updates()
         }
     }
     
-    func sortFunc(i0: NSIndexPath, i1: NSIndexPath) -> Bool {
+    private func sortFunc(i0: NSIndexPath, i1: NSIndexPath) -> Bool {
         return i0.item > i1.item
     }
     
     // MARK: Specialized alert displays for UIViewControllers
-    func displayAlertWindow(title: String, msg: String, actions: [UIAlertAction]?){
+    private func displayAlertWindow(title: String, msg: String, actions: [UIAlertAction]?){
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             let alertWindow: UIAlertController = UIAlertController(title: title, message: msg, preferredStyle: UIAlertControllerStyle.Alert)
             alertWindow.addAction(self.dismissAction())
@@ -418,7 +418,7 @@ extension PhotoAlbumViewController {
         }
     }
     
-    func dismissAction()-> UIAlertAction {
+    private func dismissAction()-> UIAlertAction {
         return UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil)
     }
 }
