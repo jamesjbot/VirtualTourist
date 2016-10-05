@@ -13,9 +13,9 @@ class PhotoViewCell: UICollectionViewCell {
     
     @IBOutlet weak var activityIndic: UIActivityIndicatorView!
     @IBOutlet weak var imageView: UIImageView?
-    var coreDataObjectID : NSManagedObjectID!
-    var url : String!
-    var didUserSelect: Bool = false
+    internal var coreDataObjectID : NSManagedObjectID!
+    internal var url : String!
+    internal var didUserSelect: Bool = false
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)

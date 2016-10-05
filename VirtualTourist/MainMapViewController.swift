@@ -18,15 +18,15 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     private let tapPinsLabelHeight: CGFloat = 50
     
     // MARK: Variables
-    var editingEnabled : Bool = false
+    private var editingEnabled : Bool = false
     
-    var floatingAnnotation: MKAnnotation!
+    private var floatingAnnotation: MKAnnotation!
     
-    let coreDataStack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
+    private let coreDataStack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
     
-    var fetchedResultsController: NSFetchedResultsController!
+    private var fetchedResultsController: NSFetchedResultsController!
     
-    var userSelectedPin: Pin!
+    private var userSelectedPin: Pin!
     
     // MARK: IBOutlets    
     @IBOutlet weak var prefetchSwitch: UISwitch!
@@ -135,7 +135,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     }
     
     // Function to call ManagedObjectContext and fetch stored objects
-    func loadCoreData() -> [MKAnnotation] {
+    private func loadCoreData() -> [MKAnnotation] {
         var annotations : [MKAnnotation] = []
         populateFRCandFetch()
         for pin in (fetchedResultsController.fetchedObjects! as! [Pin]) {
@@ -147,7 +147,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     }
     
     // Populate fetchresultscontroller and perform fetch
-    func populateFRCandFetch() {
+    private func populateFRCandFetch() {
         coreDataStack?.mainContext.performBlockAndWait(){
             let request = NSFetchRequest(entityName: "Pin")
             request.sortDescriptors = []
@@ -160,7 +160,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
         }
     }
     
-    func deletePinInCoreData(at location: CLLocationCoordinate2D){
+    private func deletePinInCoreData(at location: CLLocationCoordinate2D){
         let request = NSFetchRequest(entityName: "Pin")
         request.sortDescriptors = []
         let backgroundFetchResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: (coreDataStack?.backgroundContext)!, sectionNameKeyPath: nil, cacheName: nil)
@@ -180,7 +180,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
         }
     }
     
-    func insertPinIntoCoreData(){
+    private func insertPinIntoCoreData(){
         // Create coredata pin and immediately save
         coreDataStack?.backgroundContext.performBlockAndWait(){
             let newPin = Pin(input: self.floatingAnnotation, context: (self.coreDataStack?.backgroundContext)!)
@@ -249,7 +249,7 @@ extension MainMapViewController {
         }
     }
     
-    func dismissAction()-> UIAlertAction {
+    private func dismissAction()-> UIAlertAction {
         return UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil)
     }
 }
