@@ -13,20 +13,20 @@ import CoreData
 class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     
     // MARK: Constants
-    private let centerCoord = CLLocationCoordinate2D(latitude: 39.5, longitude: -98.35)
+    fileprivate let centerCoord = CLLocationCoordinate2D(latitude: 39.5, longitude: -98.35)
     
-    private let tapPinsLabelHeight: CGFloat = 50
+    fileprivate let tapPinsLabelHeight: CGFloat = 50
     
     // MARK: Variables
-    private var editingEnabled : Bool = false
+    fileprivate var editingEnabled : Bool = false
     
-    private var floatingAnnotation: MKAnnotation!
+    fileprivate var floatingAnnotation: MKAnnotation!
     
-    private let coreDataStack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
+    fileprivate let coreDataStack = (UIApplication.shared.delegate as! AppDelegate).stack
     
-    private var fetchedResultsController: NSFetchedResultsController!
+    fileprivate var fetchedResultsController: NSFetchedResultsController<Pin>!
     
-    private var userSelectedPin: Pin!
+    fileprivate var userSelectedPin: Pin!
     
     // MARK: IBOutlets    
     @IBOutlet weak var prefetchSwitch: UISwitch!
@@ -42,67 +42,76 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     @IBOutlet weak var tapPinsToDeleteLabel: UILabel!
     
     // MARK: IBActions
-    @IBAction func editButtonPressed(sender: UIBarButtonItem) {
+    @IBAction func editButtonPressed(_ sender: UIBarButtonItem) {
         // Animate bottom Delete label by changing NSLayoutConstraint
         switch editingEnabled {
         case true:
             editingEnabled = false
             // Remove Tap Pins label from view
-            UIView.animateWithDuration(0.3, delay: 0.0, options: [], animations: {
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: [], animations: {
                 self.tapPinsHeight.constant = 0
                 self.view.layoutIfNeeded()
                 }, completion: nil)
         case false:
             editingEnabled = true
             // Show Tap Pins label in view
-            UIView.animateWithDuration(0.3, delay: 0.0, options: [], animations: {
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: [], animations: {
                 self.tapPinsHeight.constant = self.tapPinsLabelHeight
                 self.view.layoutIfNeeded()
                 }, completion: nil)
         }
     }
     
-    @IBAction func handleLongPress(sender: UILongPressGestureRecognizer) {
-        // Remove gesture recognizer for redundant calls to long press
-        mapView.removeGestureRecognizer(sender)
+    @IBAction func handleLongPress(_ sender: UILongPressGestureRecognizer) {
+        // Remove redundant calls to long press
+        mapView.resignFirstResponder()
+        
         // Always set a pin down when user presses down
         // When the pin state is changed delete old pin and replace with new pin
         // When user release drop the pin and save it to the database
+        print(sender.state.rawValue)
         switch sender.state {
-        case UIGestureRecognizerState.Began:
+        case UIGestureRecognizerState.began:
             // Set floating annotation
-            let coordinateOnMap = mapView.convertPoint(sender.locationInView(mapView), toCoordinateFromView: mapView)
+            let coordinateOnMap = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinateOnMap
             mapView.addAnnotation(annotation)
             floatingAnnotation = annotation
             
-        case UIGestureRecognizerState.Changed:
+        case UIGestureRecognizerState.changed:
             // Move floating annotation
             mapView.removeAnnotation(floatingAnnotation)
-            let coordinateOnMap = mapView.convertPoint(sender.locationInView(mapView), toCoordinateFromView: mapView)
+            let coordinateOnMap = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinateOnMap
             mapView.addAnnotation(annotation)
             floatingAnnotation = annotation
             
-        case UIGestureRecognizerState.Ended:
+        case UIGestureRecognizerState.ended:
             insertPinIntoCoreData()
             // Clear out floating annotation
             floatingAnnotation = nil
+        
+        case UIGestureRecognizerState.cancelled:
+            break
+        
+        case UIGestureRecognizerState.failed:
+            break
+            
+        case UIGestureRecognizerState.possible:
+            break
             
         default:
             break
         }
-        // Reenable gesture recognizer
-        mapView.addGestureRecognizer(sender)
     }
     
     // MARK: Functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let request = NSFetchRequest(entityName: "Pin")
+        let request = NSFetchRequest<Pin>(entityName: "Pin")
         request.sortDescriptors = []
         fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: (coreDataStack?.mainContext)!, sectionNameKeyPath: nil, cacheName: nil)
         do {
@@ -120,7 +129,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
         mapView.delegate = self
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // Remove annotation from snapshot view
         mapView.removeAnnotations(mapView.annotations)
@@ -135,10 +144,10 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     }
     
     // Function to call ManagedObjectContext and fetch stored objects
-    private func loadCoreData() -> [MKAnnotation] {
+    fileprivate func loadCoreData() -> [MKAnnotation] {
         var annotations : [MKAnnotation] = []
         populateFRCandFetch()
-        for pin in (fetchedResultsController.fetchedObjects! as! [Pin]) {
+        for pin in (fetchedResultsController.fetchedObjects! ) {
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude as! Double, longitude: pin.longitude as! Double)
             annotations.append(annotation)
@@ -147,9 +156,9 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     }
     
     // Populate fetchresultscontroller and perform fetch
-    private func populateFRCandFetch() {
-        coreDataStack?.mainContext.performBlockAndWait(){
-            let request = NSFetchRequest(entityName: "Pin")
+    fileprivate func populateFRCandFetch() {
+        coreDataStack?.mainContext.performAndWait(){
+            let request = NSFetchRequest<Pin>(entityName: "Pin")
             request.sortDescriptors = []
             self.fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: (self.coreDataStack?.mainContext)!, sectionNameKeyPath: nil, cacheName: nil)
             do {
@@ -160,8 +169,8 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
         }
     }
     
-    private func deletePinInCoreData(at location: CLLocationCoordinate2D){
-        let request = NSFetchRequest(entityName: "Pin")
+    fileprivate func deletePinInCoreData(at location: CLLocationCoordinate2D){
+        let request = NSFetchRequest<Pin>(entityName: "Pin")
         request.sortDescriptors = []
         let backgroundFetchResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: (coreDataStack?.backgroundContext)!, sectionNameKeyPath: nil, cacheName: nil)
         do {
@@ -169,32 +178,32 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
         } catch {
             displayAlertWindow("Map View", msg: "Error accesing pin\nPlease try again", actions: nil)
         }
-        for pin in fetchedResultsController.fetchedObjects! as! [Pin] {
-            if pin.latitude == location.latitude && pin.longitude == location.longitude {
-                backgroundFetchResultsController.managedObjectContext.performBlockAndWait(){
-                    let bgPin = backgroundFetchResultsController.managedObjectContext.objectWithID(pin.objectID)
-                    backgroundFetchResultsController.managedObjectContext.deleteObject(bgPin)
+        for pin in fetchedResultsController.fetchedObjects! {
+            if pin.latitude?.doubleValue == location.latitude && pin.longitude?.doubleValue == location.longitude {
+                backgroundFetchResultsController.managedObjectContext.performAndWait(){
+                    let bgPin = backgroundFetchResultsController.managedObjectContext.object(with: pin.objectID)
+                    backgroundFetchResultsController.managedObjectContext.delete(bgPin)
                     self.coreDataStack?.saveToFile()
                 }
             }
         }
     }
     
-    private func insertPinIntoCoreData(){
+    fileprivate func insertPinIntoCoreData(){
         // Create coredata pin and immediately save
-        coreDataStack?.backgroundContext.performBlockAndWait(){
+        coreDataStack?.backgroundContext.performAndWait(){
             let newPin = Pin(input: self.floatingAnnotation, context: (self.coreDataStack?.backgroundContext)!)
             // Save pin in core data
             self.coreDataStack?.saveToFile()
-            if self.prefetchSwitch.on {
+            if self.prefetchSwitch.isOn {
                 FlickrClient.sharedInstance().prefetchImages(newPin)
             }
         }
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.destinationViewController is PhotoAlbumViewController {
-            let destinationVC = segue.destinationViewController as! PhotoAlbumViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.destination is PhotoAlbumViewController {
+            let destinationVC = segue.destination as! PhotoAlbumViewController
             destinationVC.location = userSelectedPin
             // When in the PhotoAlbumView controller the back button should say OK
             navigationController?.navigationBar.topItem?.title = "OK"
@@ -202,7 +211,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
     }
     
     // MARK: - MKMapViewDelegate functions
-    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         switch editingEnabled {
         case true:
             // Remove pin from core data
@@ -217,9 +226,9 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
             } catch {
                 displayAlertWindow("Map View", msg: "Error accesing pin\nPlease try again", actions: nil)
             }
-            if let pinArray : [Pin] = (fetchedResultsController.fetchedObjects as! [Pin]) {
+            if let pinArray : [Pin] = ((fetchedResultsController.fetchedObjects)! as [Pin]) {
                 for pin in pinArray {
-                    if pin.latitude == view.annotation?.coordinate.latitude && pin.longitude == view.annotation?.coordinate.longitude {
+                    if pin.latitude?.doubleValue == view.annotation?.coordinate.latitude && pin.longitude?.doubleValue == view.annotation?.coordinate.longitude {
                         localpin = pin
                         break
                     }
@@ -227,7 +236,7 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
             }
             if localpin != nil {
                 userSelectedPin  = localpin
-                performSegueWithIdentifier("transistionToPhotoGrid", sender: self)
+                performSegue(withIdentifier: "transistionToPhotoGrid", sender: self)
             }
         }
     }
@@ -236,21 +245,21 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
 extension MainMapViewController {
     
     // MARK: Specialized alert displays for UIViewControllers
-    func displayAlertWindow(title: String, msg: String, actions: [UIAlertAction]?){
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            let alertWindow: UIAlertController = UIAlertController(title: title, message: msg, preferredStyle: UIAlertControllerStyle.Alert)
+    func displayAlertWindow(_ title: String, msg: String, actions: [UIAlertAction]?){
+        DispatchQueue.main.async { () -> Void in
+            let alertWindow: UIAlertController = UIAlertController(title: title, message: msg, preferredStyle: UIAlertControllerStyle.alert)
             alertWindow.addAction(self.dismissAction())
             if let array = actions {
                 for action in array {
                     alertWindow.addAction(action)
                 }
             }
-            self.presentViewController(alertWindow, animated: true, completion: nil)
+            self.present(alertWindow, animated: true, completion: nil)
         }
     }
     
-    private func dismissAction()-> UIAlertAction {
-        return UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil)
+    fileprivate func dismissAction()-> UIAlertAction {
+        return UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil)
     }
 }
 

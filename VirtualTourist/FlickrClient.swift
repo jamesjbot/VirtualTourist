@@ -18,15 +18,15 @@ class FlickrClient {
     
     internal var photoSearchResultsArray : [[String:AnyObject]] = [[String:AnyObject]]()
     
-    private var newCollection:[NSURL] = [NSURL]()
+    fileprivate var newCollection:[URL] = [URL]()
     
-    private var pinLocation: Pin?
+    fileprivate var pinLocation: Pin?
     
-    private let coreData = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
+    fileprivate let coreData = (UIApplication.shared.delegate as! AppDelegate).stack
     
     // MARK: Singleton Function
     
-    private init(){}
+    fileprivate init(){}
     class func sharedInstance() -> FlickrClient {
         struct Singleton {
             static var sharedInstance = FlickrClient()
@@ -37,7 +37,7 @@ class FlickrClient {
     // MARK: Functions
     
     // Create a boundingBox for flickr search parameters
-    private func boundingboxConstruct() -> String {
+    fileprivate func boundingboxConstruct() -> String {
         if let latitude : Double = Double((pinLocation?.latitude!)!),
             let longitude : Double = Double((pinLocation?.longitude)!) {
             let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
@@ -51,8 +51,8 @@ class FlickrClient {
     }
     
     // Use Flickr's RESTful api to get search results and store locally
-    internal func searchForPicturesByLatLonByPinByAsync(inputLocation: Pin ,
-                                        completionHandlerTopLevel: ((success: Bool, results: NSData?, error: NSError?) -> Void )?
+    internal func searchForPicturesByLatLonByPinByAsync(_ inputLocation: Pin ,
+                                        completionHandlerTopLevel: ((_ success: Bool, _ results: Data?, _ error: NSError?) -> Void )?
         ){
         pinLocation = inputLocation
         let methodParameters = [
@@ -65,20 +65,21 @@ class FlickrClient {
             Constants.FlickrParameterKeys.NoJSONCallback : Constants.FlickrParameterValues.DisableJSONCallback,
             Constants.FlickrParameterKeys.Lat : pinLocation!.latitude!,
             Constants.FlickrParameterKeys.Lon : pinLocation!.longitude!
-        ]
-        let searchURL = createURLFromParameters(methodParameters)
-        let searchRequest = NSURLRequest(URL: searchURL)
-        let session = NSURLSession.sharedSession()
+        ] as [String : Any]
+        let searchURL = createURLFromParameters(methodParameters as [String : AnyObject])
+        let searchRequest = URLRequest(url: searchURL)
+        print(searchRequest.url)
+        let session = URLSession.shared
         session.configuration.timeoutIntervalForRequest = 10
-        let task = session.dataTaskWithRequest(searchRequest){
-            (data, response, error) in
-            self.guardChecks(data, response: response, error: error) {
+        let task = session.dataTask(with:searchRequest) {
+            (data, response, error) -> Void in
+            self.guardChecks(data, response: response, error: error as NSError?) {
                 (requestSuccess, error) -> Void in
                 if !requestSuccess && completionHandlerTopLevel != nil
                 {
                     if let completionHandlerTopLevel = completionHandlerTopLevel {
-                        let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\n\((error?.localizedDescription)!)\nPlease backout to main map and try again"]
-                        completionHandlerTopLevel(success: false, results: nil, error: NSError(domain: "FlickrClient", code: 2, userInfo: userInfo))
+                        let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\n\((error?.localizedDescription)!)\nPlease backout to main map and try again"]
+                        completionHandlerTopLevel(false, nil, NSError(domain: "FlickrClient", code: 2, userInfo: userInfo))
                     }
                     return
                 }
@@ -86,25 +87,28 @@ class FlickrClient {
                     (dict, error) -> Void in
                     if error != nil {
                         if let completionHandlerTopLevel = completionHandlerTopLevel {
-                            let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
-                            completionHandlerTopLevel(success: false, results: nil, error: NSError(domain: "FlickrClient", code: 2, userInfo: userInfo))
+                            let userInfo : [AnyHashable : Any]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
+                            completionHandlerTopLevel(false, nil, NSError(domain: "FlickrClient", code: 2, userInfo: userInfo))
                         }
                         return
                     }
                     // Perform model updates
                     let photosElement = dict![Constants.FlickrResponseKeys.Photos]
-                    self.photoSearchResultsArray = photosElement![Constants.FlickrResponseKeys.Photo] as! [[String:AnyObject]]
+                    print(photosElement)
+                    //self.photoSearchResultsArray = [photosElement as! [String:AnyObject]]
+                    //self.photoSearchResultsArray = (photosElement! as! [[String:AnyObject]])[Constants.FlickrResponseKeys.Photo]
                     if let completionHandlerTopLevel = completionHandlerTopLevel {
-                        completionHandlerTopLevel(success: true, results: photosElement![Constants.FlickrResponseKeys.Photo] as? NSData, error: nil)
+                        completionHandlerTopLevel(true, photosElement as? Data, nil)
                     }
                 }
             }
+            return ()
         }
         task.resume()
     }
     
     // From the search results, load only up the maximum allowed photos
-    private func seperateNewCollectionFromResults(){
+    fileprivate func seperateNewCollectionFromResults(){
         // Load local visible records
         let shownImages = (photoSearchResultsArray.count < Constants.Flickr.MaximumShownImages ?
             photoSearchResultsArray.count : Constants.Flickr.MaximumShownImages)
@@ -119,64 +123,65 @@ class FlickrClient {
     }
     
     // Two performwaitandblocks in background context
-    internal func populateCoreDataWithSearchResultsInFlickrClient(completionHandler: ((success: Bool, error: NSError?) -> Void)){
+    internal func populateCoreDataWithSearchResultsInFlickrClient(_ completionHandler: @escaping ((_ success: Bool, _ error: NSError?) -> Void)){
         
         seperateNewCollectionFromResults()
         
         // In Coredata, remove the photos registered to this pin
         let bfrc = getBackgroundContextFetchedResultsController()
         guard bfrc != nil else {
-            let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Saving Photos\nPlease try again"]
-            completionHandler(success: false, error: NSError(domain: "FlickrClient", code: 5, userInfo: userInfo))
+            let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Saving Photos\nPlease try again"]
+            completionHandler(false, NSError(domain: "FlickrClient", code: 5, userInfo: userInfo))
             return
         }
         
         //Remove photos
-        coreData!.backgroundContext.performBlockAndWait(){
+        coreData!.backgroundContext.performAndWait(){
             do {
                 try bfrc!.performFetch()
             } catch {
-                let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Removing Photos\nPlease try again"]
-                completionHandler(success: false, error: NSError(domain: "FlickrClient", code: 3, userInfo: userInfo))
+                let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Removing Photos\nPlease try again"]
+                completionHandler(false, NSError(domain: "FlickrClient", code: 3, userInfo: userInfo))
                 return
             }
             for i in bfrc!.fetchedObjects! {
-                self.coreData!.backgroundContext.deleteObject(i as! NSManagedObject)
+                self.coreData!.backgroundContext.delete(i as NSManagedObject)
             }
         }
         
         // Add new photos to core data, and save the related pin
-        coreData!.backgroundContext.performBlockAndWait()
+        coreData!.backgroundContext.performAndWait()
             { () -> Void in
                 for url in self.newCollection {
                     // Load the new photo for saving
                     let photo2BSaved = Photo(image: nil, url: url,  context: self.coreData!.backgroundContext)
                     // Convert main context pin location to the background context, and register thie photo to our pin
-                    photo2BSaved.pin = self.coreData!.backgroundContext.objectWithID((self.pinLocation?.objectID)!) as? Pin
+                    photo2BSaved.pin = self.coreData!.backgroundContext.object(with: (self.pinLocation?.objectID)!) as? Pin
                 }
+                
                 do {
                     try self.coreData!.backgroundContext.save()
                 } catch {
-                    let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
-                    completionHandler(success: false, error: NSError(domain: "FlickrClient", code: 3, userInfo: userInfo))
+                    let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
+                    completionHandler(false, NSError(domain: "FlickrClient", code: 3, userInfo: userInfo))
                     return
                 }
         }
-        completionHandler(success: true, error: nil)
+        completionHandler(true, nil)
     }
     
     // Download images in the background then update Coredata when complete
-    internal func downloadImageToCoreData( aturl: NSURL, forPin: Pin, updateManagedObjectID: NSManagedObjectID, index: NSIndexPath?) {
-        let session = NSURLSession.sharedSession()
-        let task = session.dataTaskWithURL(aturl){
+    internal func downloadImageToCoreData( _ aturl: URL, forPin: Pin, updateManagedObjectID: NSManagedObjectID, index: IndexPath?) {
+        let session = URLSession.shared
+        let task = session.dataTask(with: aturl, completionHandler: {
             (data, response, error) -> Void in
             if error == nil {
                 if data == nil {
                     return
                 }
-                self.coreData!.backgroundContext.performBlockAndWait(){
-                    let photoForUpdate = self.coreData!.backgroundContext.objectWithID(updateManagedObjectID) as! Photo
-                    let outputData : NSData = UIImagePNGRepresentation(UIImage(data: data!)!)!
+                self.coreData!.backgroundContext.performAndWait(){
+                    let photoForUpdate = self.coreData!.backgroundContext.object(with: updateManagedObjectID) as! Photo
+                    let outputData : Data = UIImagePNGRepresentation(UIImage(data: data!)!)!
                     photoForUpdate.setImage(outputData)
                     do {
                         try self.coreData!.backgroundContext.save()
@@ -186,11 +191,11 @@ class FlickrClient {
                     }
                 }
             }
-        }
+        })
         task.resume()
     }
     
-    internal func prefetchImages(location: Pin){
+    internal func prefetchImages(_ location: Pin){
         pinLocation = location
         searchForPicturesByLatLonByPinByAsync(location){
             (success, results, error) -> Void in
@@ -199,9 +204,9 @@ class FlickrClient {
                     (success, error) -> Void in
                     if success {
                         let bfrc = self.getBackgroundContextFetchedResultsController()
-                        for i in bfrc?.fetchedObjects as! [Photo] {
-                            dispatch_async(dispatch_get_main_queue()){
-                                self.downloadImageToCoreData(NSURL(string: i.url!)!, forPin: location, updateManagedObjectID: i.objectID, index: nil)
+                        for i in (bfrc?.fetchedObjects)! as [Photo] {
+                            DispatchQueue.main.async{
+                                self.downloadImageToCoreData(URL(string: i.url!)!, forPin: location, updateManagedObjectID: i.objectID, index: nil)
                             }
                         }
                     }
@@ -212,32 +217,33 @@ class FlickrClient {
     
     // MARK: Utilities
     
-    private func constructImageURL(photo: [String : AnyObject]) -> NSURL {
+    fileprivate func constructImageURL(_ photo: [String : AnyObject]) -> URL {
+        print("photo:\n\(photo)")
         let farm = photo[Constants.FlickrURLConstructValue.Farm]!
         let server = photo[Constants.FlickrURLConstructValue.Server]!
         let secret = photo[Constants.FlickrURLConstructValue.Secret]!
         let id = photo[Constants.FlickrURLConstructValue.Id]!
-        return NSURL(string:"https://farm\(farm).staticflickr.com/\(server)/\(id)_\(secret)_\(Constants.Flickr.ImageSize).jpg")!
+        return URL(string:"https://farm\(farm).staticflickr.com/\(server)/\(id)_\(secret)_\(Constants.Flickr.ImageSize).jpg")!
     }
     
-    private func parseResults(data: NSData?, completionHandlerForParsingData: (parsedDictinary: NSDictionary?, error: NSError?) -> Void){
+    fileprivate func parseResults(_ data: Data?, completionHandlerForParsingData: (_ parsedDictinary: NSDictionary?, _ error: NSError?) -> Void){
         var parsedResult: NSDictionary
         do {
-            parsedResult = try NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments) as! NSDictionary
-            completionHandlerForParsingData(parsedDictinary: parsedResult, error: nil)
+            parsedResult = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! NSDictionary
+            completionHandlerForParsingData(parsedResult, nil)
             return
         } catch {
-            let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Parsing Information\n Please try again"]
-            completionHandlerForParsingData(parsedDictinary: nil, error: NSError(domain: "FlickrClient", code: 1, userInfo: userInfo))
+            let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Parsing Information\n Please try again"]
+            completionHandlerForParsingData(nil, NSError(domain: "FlickrClient", code: 1, userInfo: userInfo))
             return
         }
     }
     
-    private func guardChecks(data: NSData?, response: NSURLResponse?, error: NSError?, completionHandlerForGuardChecks: (requestSuccess: Bool, error: NSError?)-> Void){
+    fileprivate func guardChecks(_ data: Data?, response: URLResponse?, error: NSError?, completionHandlerForGuardChecks: @escaping (_ requestSuccess: Bool, _ error: NSError?)-> Void){
         
-        func sendError(error: String) {
+        func sendError(_ error: String) {
             let userInfo = [NSLocalizedDescriptionKey : error]
-            completionHandlerForGuardChecks(requestSuccess: false, error: NSError(domain: "FlickrClient", code: 1, userInfo: userInfo))
+            completionHandlerForGuardChecks(false, NSError(domain: "FlickrClient", code: 1, userInfo: userInfo))
         }
         
         // GUARD: For any error
@@ -247,14 +253,14 @@ class FlickrClient {
         }
         
         // GUARD: There was no error from server; however server did not take further action
-        guard (response as! NSHTTPURLResponse).statusCode != 403 else {
+        guard (response as! HTTPURLResponse).statusCode != 403 else {
             sendError("Server not responding to request")
             return
         }
         
         // GUARD: Did we get successful 2XX response?
-        guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-            sendError("Your request returned a status code other than 2xx \((response as? NSHTTPURLResponse)!.statusCode)")
+        guard let statusCode = (response as? HTTPURLResponse)?.statusCode , statusCode >= 200 && statusCode <= 299 else {
+            sendError("Your request returned a status code other than 2xx \((response as? HTTPURLResponse)!.statusCode)")
             return
         }
         
@@ -264,25 +270,25 @@ class FlickrClient {
             return
         }
         
-        completionHandlerForGuardChecks(requestSuccess: true, error: nil)
+        completionHandlerForGuardChecks(true, nil)
     }
     
-    private func createURLFromParameters(paramenters: [String:AnyObject]) -> NSURL {
-        let components = NSURLComponents()
+    fileprivate func createURLFromParameters(_ paramenters: [String:AnyObject]) -> URL {
+        var components = URLComponents()
         components.scheme = Constants.Flickr.APIScheme
         components.host = Constants.Flickr.APIHost
         components.path = Constants.Flickr.APIPath
-        components.queryItems = [NSURLQueryItem]()
+        components.queryItems = [URLQueryItem]()
         
         for (key, value) in paramenters {
-            let queryItem = NSURLQueryItem(name: key, value: "\(value)")
+            let queryItem = URLQueryItem(name: key, value: "\(value)")
             components.queryItems?.append(queryItem)
         }
-        return components.URL!
+        return components.url!
     }
     
-    private func getBackgroundContextFetchedResultsController() -> NSFetchedResultsController? {
-        let request = NSFetchRequest(entityName: "Photo")
+    fileprivate func getBackgroundContextFetchedResultsController() -> NSFetchedResultsController<Photo>? {
+        let request = NSFetchRequest<Photo>()//(entityName: "Photo")
         request.sortDescriptors = []
         let p = NSPredicate(format: "pin = %@", argumentArray: [pinLocation!])
         request.predicate = p

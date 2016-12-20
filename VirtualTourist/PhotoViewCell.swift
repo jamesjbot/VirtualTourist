@@ -21,8 +21,8 @@ class PhotoViewCell: UICollectionViewCell {
         super.init(coder: aDecoder)
         let normalBackground = UIView()
         let selectedBackground = UIView()
-        normalBackground.backgroundColor = UIColor.whiteColor()
-        selectedBackground.backgroundColor = UIColor.whiteColor()
+        normalBackground.backgroundColor = UIColor.white
+        selectedBackground.backgroundColor = UIColor.white
         backgroundView = normalBackground
         didUserSelect = false
     }

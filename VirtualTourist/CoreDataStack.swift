@@ -10,13 +10,13 @@ import CoreData
 
 class CoreDataStack: NSObject {
     // MARK: - Constants
-    private let sqlFilename : String = "com.jamesjongs.sqlite"
+    fileprivate let sqlFilename : String = "com.jamesjongs.sqlite"
     
     // MARK: - Variables
-    private var model: NSManagedObjectModel!
-    private var mainStoreCoordinator: NSPersistentStoreCoordinator!
-    private var modelURL: NSURL!
-    private var dbURL: NSURL!
+    fileprivate var model: NSManagedObjectModel!
+    fileprivate var mainStoreCoordinator: NSPersistentStoreCoordinator!
+    fileprivate var modelURL: URL!
+    fileprivate var dbURL: URL!
     internal var persistingContext: NSManagedObjectContext!
     internal var backgroundContext : NSManagedObjectContext!
     internal var mainContext: NSManagedObjectContext!
@@ -26,7 +26,7 @@ class CoreDataStack: NSObject {
     init?(modelName: String) {
         super.init()
         // This resource is the same name as your xcdatamodeld contained in your project.
-        guard let modelURL = NSBundle.mainBundle().URLForResource(modelName, withExtension:"momd") else {
+        guard let modelURL = Bundle.main.url(forResource: modelName, withExtension:"momd") else {
             fatalError("Error loading model from bundle")
         }
         
@@ -34,7 +34,7 @@ class CoreDataStack: NSObject {
         self.modelURL = modelURL
         
         // The managed object model for the application. It is a fatal error for the application not to be able to find and load its model.
-        guard let mom = NSManagedObjectModel(contentsOfURL: modelURL) else {
+        guard let mom = NSManagedObjectModel(contentsOf: modelURL) else {
             fatalError("Error initializing mom from: \(modelURL)")
         }
         
@@ -45,26 +45,26 @@ class CoreDataStack: NSObject {
         mainStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: mom)
         
         // Create the persisting context
-        persistingContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+        persistingContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         
         // Assign coordinator to persisting context
         persistingContext.persistentStoreCoordinator = mainStoreCoordinator
         
         // Create Managed Ojbect Context running on the MainQueue
-        mainContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
-        mainContext.parentContext = persistingContext
+        mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        mainContext.parent = persistingContext
         
-        backgroundContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-        backgroundContext.parentContext = mainContext
+        backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        backgroundContext.parent = mainContext
 
         
         
         // Add an SQL lite store in the documents folder
         // Create the SQL Store in the background
         //dispatch_sync(dispatch_get_main_queue()){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
+        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.background).async {
             // get the documents directory.
-            let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+            let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
             // Save the url location of the document directory
             let docURL = urls[urls.endIndex-1]
             
@@ -73,7 +73,7 @@ class CoreDataStack: NSObject {
              */
             
             // Name the SQL Lite file we are creating
-            self.dbURL = docURL.URLByAppendingPathComponent(self.sqlFilename)
+            self.dbURL = docURL.appendingPathComponent(self.sqlFilename)
             
 
             // Migrate to new DataModel with photoalbum
@@ -81,7 +81,7 @@ class CoreDataStack: NSObject {
                            NSMigratePersistentStoresAutomaticallyOption: true]
             
             do {
-                try self.mainStoreCoordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.dbURL, options: options)
+                try self.mainStoreCoordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: self.dbURL, options: options)
             } catch {
                 fatalError("Error migrating store: \(error)")
             }
@@ -122,20 +122,20 @@ extension CoreDataStack {
         // context). The last save might take some time and is done
         // in a background queue
         
-        backgroundContext.performBlockAndWait(){
+        backgroundContext.performAndWait(){
             do{
                 try self.backgroundContext.save()
             }catch{
                 fatalError("Error while saving main context: \(error)")
             }
             // Now we save the main
-            self.mainContext.performBlockAndWait(){
+            self.mainContext.performAndWait(){
                 do {
                     try self.saveMainContext()
                 } catch {
                     fatalError()
                 }
-                self.persistingContext.performBlockAndWait(){
+                self.persistingContext.performAndWait(){
                     do{
                         try self.persistingContext.save()
                     }catch{

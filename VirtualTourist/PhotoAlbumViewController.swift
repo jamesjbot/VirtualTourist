@@ -10,55 +10,85 @@ import Foundation
 import UIKit
 import MapKit
 import CoreData
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
+fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l <= r
+  default:
+    return !(rhs < lhs)
+  }
+}
+
 
 class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 
     // MARK: - Constants
     
-    private enum DataPopulationState {
-        case BothCoreDataAndSearchEmpty
-        case OnlySearchAvailable
-        case OnlyCoreDataAvailable
-        case BothCoreDataAndSearchAvailable
+    fileprivate enum DataPopulationState {
+        case bothCoreDataAndSearchEmpty
+        case onlySearchAvailable
+        case onlyCoreDataAvailable
+        case bothCoreDataAndSearchAvailable
     }
     
-    private enum BottomButtonState {
-        case NewCollection
-        case Delete
+    fileprivate enum BottomButtonState {
+        case newCollection
+        case delete
     }
     
-    private enum Constants {
+    fileprivate enum Constants {
         static let DequeIdentifier = "PVCell"
     }
-    private let NumberOfColumns = CGFloat(3)
-    private let NumberOfSpacesBetweenColumns = CGFloat(2)
-    private let coredata = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
-    private let mainContext: NSManagedObjectContext = ((UIApplication.sharedApplication().delegate as! AppDelegate).stack?.mainContext)!
-    private let sectionInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-    private let minimumSpacing = CGFloat(1)
-    private let flickrClient = FlickrClient.sharedInstance()
+    
+    fileprivate let NumberOfColumns = CGFloat(3)
+    fileprivate let NumberOfSpacesBetweenColumns = CGFloat(2)
+    fileprivate let coredata = (UIApplication.shared.delegate as! AppDelegate).stack
+    fileprivate let mainContext: NSManagedObjectContext = ((UIApplication.shared.delegate as! AppDelegate).stack?.mainContext)!
+    fileprivate let sectionInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+    fileprivate let minimumSpacing = CGFloat(1)
+    fileprivate let flickrClient = FlickrClient.sharedInstance()
     
     // MARK: - Variables
-    private var insertedIndexPaths: [NSIndexPath]!
-    private var deletedIndexPaths: [NSIndexPath]!
-    private var updateIndexPaths: [NSIndexPath]!
-    private var newSelectedIndexPaths: [NSIndexPath]! = [NSIndexPath]()
-    private var localPhotoURLs = [NSURL]()
-    private var dbAvailability: DataPopulationState = DataPopulationState.BothCoreDataAndSearchAvailable
-    private var currentBottomButtonState : BottomButtonState = BottomButtonState.NewCollection {
+    fileprivate var insertedIndexPaths: [IndexPath]!
+    fileprivate var deletedIndexPaths: [IndexPath]!
+    fileprivate var updateIndexPaths: [IndexPath]!
+    fileprivate var newSelectedIndexPaths: [IndexPath]! = [IndexPath]()
+    fileprivate var localPhotoURLs = [URL]()
+    fileprivate var dbAvailability: DataPopulationState = DataPopulationState.bothCoreDataAndSearchAvailable
+    fileprivate var currentBottomButtonState : BottomButtonState = BottomButtonState.newCollection {
         didSet{
             switch currentBottomButtonState{
-            case .Delete:
-                bottomButton.setTitle("Delete", forState: .Normal)
-            case .NewCollection:
-                bottomButton.setTitle("New Collection", forState: .Normal)
+            case .delete:
+                bottomButton.setTitle("Delete", for: UIControlState())
+            case .newCollection:
+                bottomButton.setTitle("New Collection", for: UIControlState())
             }
         }
     }
     internal var location: Pin!
-    private var photoMainFrc : NSFetchedResultsController?
-    private var sizeOfCell: CGFloat!
-    private var flowLayout : UICollectionViewFlowLayout?
+    fileprivate var photoMainFrc : NSFetchedResultsController<Photo>?
+    fileprivate var sizeOfCell: CGFloat!
+    fileprivate var flowLayout : UICollectionViewFlowLayout?
     
     // MARK: - IBOutlets
     
@@ -70,24 +100,24 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // MARK: - IBActions
     
     // Receives action from the user to either Delete Selected Photos or Download a new Collection
-    @IBAction func bottomButtonPressed(sender: AnyObject) {
+    @IBAction func bottomButtonPressed(_ sender: AnyObject) {
         switch currentBottomButtonState {
-        case BottomButtonState.Delete:
+        case BottomButtonState.delete:
             
             //Save references to maincontext managedobjects for later deletion
             var objects = [Photo]()
-            newSelectedIndexPaths = newSelectedIndexPaths.sort(sortFunc)
+            newSelectedIndexPaths = newSelectedIndexPaths.sorted(by: sortFunc)
             for i in newSelectedIndexPaths {
-                let temp : Photo = photoMainFrc?.objectAtIndexPath(i) as! Photo
+                let temp : Photo = (photoMainFrc?.object(at: i))! as Photo
                 objects.append(temp)
-                let cell = collectionGrid.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: i) as! PhotoViewCell
+                let cell = collectionGrid.dequeueReusableCell(withReuseIdentifier: Constants.DequeIdentifier, for: i) as! PhotoViewCell
                 cell.didUserSelect = false
-                cell.activityIndic.hidden = true
+                cell.activityIndic.isHidden = true
             }
             
             // Delete main context managed objects
             for i in objects {
-                mainContext.deleteObject(i)
+                mainContext.delete(i)
             }
             
             // Clear the selection array so reused cells will display correctly
@@ -102,7 +132,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             updateBottomButton()
             
         // Release selection array, reset UI, and then get a new collection from the web
-        case BottomButtonState.NewCollection:
+        case BottomButtonState.newCollection:
             
             // Remove all selections
             newSelectedIndexPaths.removeAll()
@@ -119,8 +149,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     // MARK: - Functions
     
     // When returning back to previous screen save all results to the database
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.destinationViewController is MainMapViewController {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.destination is MainMapViewController {
             coredata?.saveToFile()
         }
     }
@@ -151,7 +181,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             }
         }
         
-        currentBottomButtonState = BottomButtonState.NewCollection
+        currentBottomButtonState = BottomButtonState.newCollection
         
         initializeMapConfiguration()
         
@@ -167,7 +197,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         photoMainFrc?.delegate = self
     }
     
-    private func initializeMapConfiguration(){
+    fileprivate func initializeMapConfiguration(){
         // MapView configuration
         let span = MKCoordinateSpanMake(3 , 3)
         let cll = CLLocationCoordinate2D(latitude: location.latitude as! Double, longitude: location.longitude as! Double)
@@ -179,7 +209,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     }
     
     // Initialize the CollectionViewFlowlayout
-    private func initializeFlowLayout() {
+    fileprivate func initializeFlowLayout() {
         flowLayout = UICollectionViewFlowLayout()
         flowLayout!.itemSize = CGSize(width: sizeOfCell, height: sizeOfCell)
         flowLayout!.minimumInteritemSpacing = minimumSpacing
@@ -189,22 +219,22 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     }
     
     // Sets the size of CollectionViewCells
-    private func setDeviceSpecificSizeOfCell(){
+    fileprivate func setDeviceSpecificSizeOfCell(){
         sizeOfCell = (view.frame.width - NumberOfSpacesBetweenColumns*minimumSpacing - sectionInsets.left - sectionInsets.right)/NumberOfColumns
     }
     
-    private func decideHowToProceedOnDataAvailability(){
+    fileprivate func decideHowToProceedOnDataAvailability(){
         if photoMainFrc?.fetchedObjects?.count < 1 { // Coredata empty
             if flickrClient.photoSearchResultsArray.count < 1 { // Search Empty
-                dbAvailability = DataPopulationState.BothCoreDataAndSearchEmpty
+                dbAvailability = DataPopulationState.bothCoreDataAndSearchEmpty
             } else { // Search Full
-                dbAvailability = DataPopulationState.OnlySearchAvailable
+                dbAvailability = DataPopulationState.onlySearchAvailable
             }
         } else { // Coredata Full
             if flickrClient.photoSearchResultsArray.count < 1 {// Search Empty
-                dbAvailability = DataPopulationState.OnlyCoreDataAvailable
+                dbAvailability = DataPopulationState.onlyCoreDataAvailable
             } else {// Search Full
-                dbAvailability = DataPopulationState.BothCoreDataAndSearchAvailable
+                dbAvailability = DataPopulationState.bothCoreDataAndSearchAvailable
             }
         }
         
@@ -213,16 +243,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         // Reset selection array
         newSelectedIndexPaths.removeAll()
         switch dbAvailability {
-        case .BothCoreDataAndSearchAvailable:
+        case .bothCoreDataAndSearchAvailable:
             // Do nothing CollectionView will initially load itself from the database
             break
-        case .BothCoreDataAndSearchEmpty:
+        case .bothCoreDataAndSearchEmpty:
             displayAlertWindow("No Photos", msg: "No pictures taken at this location\n go back and choose another location. Press 'OK' to go back to main map!", actions: nil)
             break
-        case .OnlyCoreDataAvailable:
+        case .onlyCoreDataAvailable:
             // Do nothing CollectionView will initially load itself from the database
             break
-        case .OnlySearchAvailable:
+        case .onlySearchAvailable:
             assert(photoMainFrc?.fetchedObjects!.count < 1 )
             flickrClient.populateCoreDataWithSearchResultsInFlickrClient(){
                 (success, error ) -> Void in
@@ -235,25 +265,25 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     }
     
     // Fetches photos from Coredata
-    private func executeFetchResultsController(on location : Pin, completionHandler: (success: Bool?, error: NSError?)-> Void ){
-        let request = NSFetchRequest(entityName: "Photo")
+    fileprivate func executeFetchResultsController(on location : Pin, completionHandler: (_ success: Bool?, _ error: NSError?)-> Void ){
+        let request = NSFetchRequest<Photo>(entityName: "Photo")
         request.sortDescriptors = []
         request.predicate = NSPredicate(format: "pin = %@", argumentArray: [location])
         photoMainFrc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
         do {
             try photoMainFrc?.performFetch()
         } catch {
-            let userInfo : [NSObject:AnyObject]? = [NSLocalizedDescriptionKey: "Error Reading Photos\nPlease try again"]
-            completionHandler(success: false, error: NSError(domain: "PhotoAlbum", code: 0, userInfo: userInfo))
+            let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Reading Photos\nPlease try again"]
+            completionHandler(false, NSError(domain: "PhotoAlbum", code: 0, userInfo: userInfo))
             return
         }
         // This is need to signal viewDidLoad
-        completionHandler(success: true, error: nil)
+        completionHandler(true, nil)
     }
     
     // MARK: - UICollectionViewDataSource
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // Only display a maximum number of images
         guard photoMainFrc?.fetchedObjects?.count != nil else {
             return 0
@@ -265,14 +295,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
     }
     
     // Download initiated on async task on mainqueue
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.DequeIdentifier, forIndexPath: indexPath) as! PhotoViewCell
-        cell.selected = false
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.DequeIdentifier, for: indexPath) as! PhotoViewCell
+        cell.isSelected = false
         cell.imageView!.alpha = 1.0
         cell.imageView?.image = nil
-        cell.activityIndic.hidden = true
+        cell.activityIndic.isHidden = true
         cell.activityIndic.stopAnimating()
-        let coreDataPhoto = photoMainFrc?.objectAtIndexPath(indexPath) as! Photo
+        let coreDataPhoto = (photoMainFrc?.object(at: indexPath))! as Photo
         if newSelectedIndexPaths.contains(indexPath){
             cell.imageView?.alpha = 0.5
         } else {
@@ -281,9 +311,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
         
         switch (coreDataPhoto.imageData != nil){
         case true:
-            let data : NSData = coreDataPhoto.imageData!
+            let data : Data = coreDataPhoto.imageData!
             let im = UIImage(data: data)
-            cell.activityIndic.hidden = true
+            cell.activityIndic.isHidden = true
             cell.activityIndic.stopAnimating()
             cell.imageView?.image = im
             cell.coreDataObjectID = coreDataPhoto.objectID
@@ -291,14 +321,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             return cell
             
         case false:
-            cell.activityIndic.hidden = false
+            cell.activityIndic.isHidden = false
             cell.activityIndic.startAnimating()
             cell.imageView!.image = nil
             cell.coreDataObjectID = coreDataPhoto.objectID
             cell.url = coreDataPhoto.url
-            dispatch_async(dispatch_get_main_queue()){
+            DispatchQueue.main.async{
                 () -> Void in
-                self.flickrClient.downloadImageToCoreData(NSURL(string: coreDataPhoto.url!)!, forPin: self.location!, updateManagedObjectID: coreDataPhoto.objectID, index: indexPath)
+                self.flickrClient.downloadImageToCoreData(URL(string: coreDataPhoto.url!)!, forPin: self.location!, updateManagedObjectID: coreDataPhoto.objectID, index: indexPath)
             }
             return cell
         }
@@ -308,81 +338,93 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 // MARK: NSFetchedResultsControllerDelegate methods
 extension PhotoAlbumViewController : NSFetchedResultsControllerDelegate {
     
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        insertedIndexPaths = [NSIndexPath]()
-        deletedIndexPaths = [NSIndexPath]()
-        updateIndexPaths = [NSIndexPath]()
+    // Create blank index path arrays that we will fill when changes come in.
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        insertedIndexPaths = [IndexPath]()
+        deletedIndexPaths = [IndexPath]()
+        updateIndexPaths = [IndexPath]()
     }
     
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    // Collect changed indexPaths in designated array
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
-        guard (newIndexPath?.item <= FlickrClient.Constants.Flickr.MaximumShownImages && indexPath?.item <= FlickrClient.Constants.Flickr.MaximumShownImages) else {
+        // No indexpaths past the maximum amount of allowable images
+        // This will constrain the number of images on screen.
+        guard ((newIndexPath as NSIndexPath?)?.item <= FlickrClient.Constants.Flickr.MaximumShownImages && (indexPath as NSIndexPath?)?.item <= FlickrClient.Constants.Flickr.MaximumShownImages) else {
             return
         }
+        
         switch (type){
-        case .Insert:
+        case .insert:
             insertedIndexPaths.append(newIndexPath!)
-        case .Delete:
+        case .delete:
             deletedIndexPaths.append(indexPath!)
-        case .Move:
+        case .move:
             // No action needed for this response
             break
-        case .Update:
+        case .update:
             updateIndexPaths.append(indexPath!)
         }
     }
     
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    // Commit changes to the collection grid.
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         collectionGrid.performBatchUpdates({ () -> Void in
+            // Insert new index paths.
             for indexPath in self.insertedIndexPaths {
-                self.collectionGrid.insertItemsAtIndexPaths([indexPath])
+                self.collectionGrid.insertItems(at: [indexPath])
             }
+            
             // Sort from largest to smallest indexpath, so deletes don't occur on nonexistent cell
-            self.deletedIndexPaths = self.deletedIndexPaths.sort(self.sortFunc)
+            // This will delete indexPaths at the end first.
+            self.deletedIndexPaths = self.deletedIndexPaths.sorted(by: self.sortFunc)
             
+            // Delete end index paths
             for indexPath in self.deletedIndexPaths {
-                self.collectionGrid.deleteItemsAtIndexPaths([indexPath])
+                self.collectionGrid.deleteItems(at: [indexPath])
             }
             
+            // Update index paths when data like image data has changed.
             for indexPath in self.updateIndexPaths {
-                self.collectionGrid.reloadItemsAtIndexPaths([indexPath])
+                self.collectionGrid.reloadItems(at: [indexPath])
             }
+            
+            // Push all change to file.
             self.coredata?.saveToFile()
             } , completion: nil)
-        
-    }
+    } // end of controllerDidChangeContent
 }
 
 // MARK: UICollectionViewDelegate
 extension PhotoAlbumViewController: UICollectionViewDelegate {
     
-    func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    func collectionView(collectionsView: UICollectionView, shouldDeselectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func collectionView(_ collectionsView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // Whenever a cell is tapped we will toggle its presence in the selectedIndexes array
-        if let index = newSelectedIndexPaths.indexOf(indexPath) {
-            newSelectedIndexPaths.removeAtIndex(index)
+        if let index = newSelectedIndexPaths.index(of: indexPath) {
+            newSelectedIndexPaths.remove(at: index)
         } else {
             newSelectedIndexPaths.append(indexPath)
         }
         
         updateBottomButton()
         // Force cell to rerender
-        collectionView.reloadItemsAtIndexPaths([indexPath])
+        collectionView.reloadItems(at: [indexPath])
     }
     
     // Changes bottom button's text and functionality
     func updateBottomButton(){
         if newSelectedIndexPaths.count > 0 {
-            currentBottomButtonState = BottomButtonState.Delete
+            currentBottomButtonState = BottomButtonState.delete
         } else {
-            currentBottomButtonState = BottomButtonState.NewCollection
+            currentBottomButtonState = BottomButtonState.newCollection
         }
     }
 }
@@ -392,32 +434,32 @@ extension PhotoAlbumViewController {
     // MARK: Utility
     
     // Function to performUIUpdates on main queue
-    private func performUpdatesOnMain(updates: () -> Void) {
-        dispatch_async(dispatch_get_main_queue()) {
+    fileprivate func performUpdatesOnMain(_ updates: @escaping () -> Void) {
+        DispatchQueue.main.async {
             updates()
         }
     }
     
-    private func sortFunc(i0: NSIndexPath, i1: NSIndexPath) -> Bool {
-        return i0.item > i1.item
+    fileprivate func sortFunc(_ i0: IndexPath, i1: IndexPath) -> Bool {
+        return (i0 as NSIndexPath).item > (i1 as NSIndexPath).item
     }
     
     // MARK: Specialized alert displays for UIViewControllers
-    private func displayAlertWindow(title: String, msg: String, actions: [UIAlertAction]?){
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            let alertWindow: UIAlertController = UIAlertController(title: title, message: msg, preferredStyle: UIAlertControllerStyle.Alert)
+    fileprivate func displayAlertWindow(_ title: String, msg: String, actions: [UIAlertAction]?){
+        DispatchQueue.main.async { () -> Void in
+            let alertWindow: UIAlertController = UIAlertController(title: title, message: msg, preferredStyle: UIAlertControllerStyle.alert)
             alertWindow.addAction(self.dismissAction())
             if let array = actions {
                 for action in array {
                     alertWindow.addAction(action)
                 }
             }
-            self.presentViewController(alertWindow, animated: true, completion: nil)
+            self.present(alertWindow, animated: true, completion: nil)
         }
     }
     
-    private func dismissAction()-> UIAlertAction {
-        return UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil)
+    fileprivate func dismissAction()-> UIAlertAction {
+        return UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil)
     }
 }
 
