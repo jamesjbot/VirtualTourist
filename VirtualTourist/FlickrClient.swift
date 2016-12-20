@@ -160,6 +160,7 @@ class FlickrClient {
                 }
                 
                 do {
+                    //TODO try self.coreData!.saveBackgroundContext()
                     try self.coreData!.backgroundContext.save()
                 } catch {
                     let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
@@ -179,11 +180,20 @@ class FlickrClient {
                 if data == nil {
                     return
                 }
+                // TODO this will cause a deadlock 
+                // If I use self.coreData?.saveBackgroundContext()
+                // I will be recursivley calling backgroundContext.performAndWait()
+                
+                // If I don't use self.coreData!.backgroundContext.performAndWait()
+                // I may be able to change the code to use self.coreData?.saveBackgroundContext()
+                // todo that I need to remove the outer performAndWait code
+                // then uncomment my saveBackgroundContext() line.
                 self.coreData!.backgroundContext.performAndWait(){
                     let photoForUpdate = self.coreData!.backgroundContext.object(with: updateManagedObjectID) as! Photo
                     let outputData : Data = UIImagePNGRepresentation(UIImage(data: data!)!)!
                     photoForUpdate.setImage(outputData)
                     do {
+                        //TODO try self.coreData?.saveBackgroundContext()
                         try self.coreData!.backgroundContext.save()
                     }
                     catch {
