@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import MapKit
 import CoreData
+
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
@@ -123,12 +124,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
             // Clear the selection array so reused cells will display correctly
             newSelectedIndexPaths.removeAll()
             
-            // Save managedobject changes into the persistent context
-            do {
-                try mainContext.save()
-            } catch _ {
-                fatalError()
-            }
             updateBottomButton()
             
         // Release selection array, reset UI, and then get a new collection from the web
@@ -390,7 +385,8 @@ extension PhotoAlbumViewController : NSFetchedResultsControllerDelegate {
             }
             
             // Push all change to file.
-            self.coredata?.saveToFile()
+            //self.coredata?.saveToFile()
+            self.coredata?.savePhotoAlbumChangesToFile()
             } , completion: nil)
     } // end of controllerDidChangeContent
 }
