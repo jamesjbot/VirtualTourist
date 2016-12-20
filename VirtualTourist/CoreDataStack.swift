@@ -91,10 +91,14 @@ class CoreDataStack: NSObject {
 }
 
 extension CoreDataStack {
-    internal func saveBackgroundContext() throws{
-        if backgroundContext.hasChanges{
-            do {
-                try backgroundContext.save()
+    internal func saveBackgroundContext() throws {
+        if backgroundContext.hasChanges {
+            backgroundContext.performAndWait {
+                do {
+                    try self.backgroundContext.save()
+                } catch {
+                    fatalError("Error saving background")
+                }
             }
         }
     }
@@ -107,7 +111,7 @@ extension CoreDataStack {
         }
     }
     
-    internal func savePersistingContext() throws{
+    internal func savePersistingContext() throws {
         if persistingContext.hasChanges{
             do {
                 try persistingContext.save()
@@ -125,21 +129,21 @@ extension CoreDataStack {
         backgroundContext.performAndWait(){
             do{
                 try self.backgroundContext.save()
-            }catch{
-                fatalError("Error while saving main context: \(error)")
+            } catch let error {
+                fatalError("Error while saving background context:\n\(error)")
             }
             // Now we save the main
             self.mainContext.performAndWait(){
                 do {
                     try self.saveMainContext()
-                } catch {
-                    fatalError()
+                } catch let error {
+                    fatalError("Error while saving mainContext:\n\(error)")
                 }
                 self.persistingContext.performAndWait(){
                     do{
                         try self.persistingContext.save()
-                    }catch{
-                        fatalError("Error while saving persisting context: \(error)")
+                    } catch let error {
+                        fatalError("Error while saving persisting context:\n\(error)")
                     }
                 }
             }
