@@ -119,6 +119,28 @@ extension CoreDataStack {
         }
     }
     
+    /* 
+     * Saves changes to PhotoAlbum from the
+     * main context to the sql file.
+     */
+    internal func savePhotoAlbumChangesToFile() {
+        // Now we save the main
+        mainContext.performAndWait(){
+            do {
+                try self.saveMainContext()
+            } catch let error {
+                fatalError("Error while saving mainContext:\n\(error)")
+            }
+            self.persistingContext.performAndWait(){
+                do{
+                    try self.persistingContext.save()
+                } catch let error {
+                    fatalError("Error while saving persisting context:\n\(error)")
+                }
+            }
+        }
+    }
+    
     internal func saveToFile() {
         // We call this synchronously, but it's a very fast
         // operation (it doesn't hit the disk). We need to know
