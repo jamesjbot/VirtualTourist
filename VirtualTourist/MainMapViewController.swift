@@ -13,11 +13,13 @@ import CoreData
 class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     
     // MARK: Constants
+    
     fileprivate let centerCoord = CLLocationCoordinate2D(latitude: 39.5, longitude: -98.35)
     
     fileprivate let tapPinsLabelHeight: CGFloat = 50
     
     // MARK: Variables
+
     fileprivate var editingEnabled : Bool = false
     
     fileprivate var floatingAnnotation: MKAnnotation!
