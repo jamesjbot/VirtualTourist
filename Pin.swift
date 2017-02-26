@@ -13,9 +13,9 @@ class Pin: NSManagedObject {
 
 // Insert code here to add functionality to your managed object subclass
     convenience init(input: MKAnnotation, context: NSManagedObjectContext){
-        let ent = NSEntityDescription.entityForName("Pin", inManagedObjectContext: context)
-            self.init(entity: ent!, insertIntoManagedObjectContext: context)
-            latitude = input.coordinate.latitude
-            longitude = input.coordinate.longitude
+        let ent = NSEntityDescription.entity(forEntityName: "Pin", in: context)
+            self.init(entity: ent!, insertInto: context)
+            latitude = input.coordinate.latitude as NSNumber?
+            longitude = input.coordinate.longitude as NSNumber?
     }
 }
