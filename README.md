@@ -1,5 +1,5 @@
 # Virtual Tourist
-This app allows you to take a photo tour of places; by downloading pictures from the Flickr.
+This app allows you to take a photo tour of places; by downloading pictures from Flickr.
 
 ## Overview
 This photo touring app, allows you to select a position on the map and download photos from that area.
