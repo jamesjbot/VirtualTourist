@@ -68,7 +68,6 @@ class FlickrClient {
         ] as [String : Any]
         let searchURL = createURLFromParameters(methodParameters as [String : AnyObject])
         let searchRequest = URLRequest(url: searchURL)
-        print(searchRequest.url)
         let session = URLSession.shared
         session.configuration.timeoutIntervalForRequest = 10
         let task = session.dataTask(with:searchRequest) {
@@ -94,7 +93,6 @@ class FlickrClient {
                     }
                     // Perform model updates
                     let photosElement = dict![Constants.FlickrResponseKeys.Photos]
-                    print(photosElement)
                     let photoResults = photosElement as! [String:AnyObject]
                     self.photoSearchResultsArray = photoResults[Constants.FlickrResponseKeys.Photo] as! [[String : AnyObject]]
                     if let completionHandlerTopLevel = completionHandlerTopLevel {
@@ -160,7 +158,6 @@ class FlickrClient {
                 }
                 
                 do {
-                    //TODO try self.coreData!.saveBackgroundContext()
                     try self.coreData!.backgroundContext.save()
                 } catch {
                     let userInfo : [AnyHashable: Any]? = [NSLocalizedDescriptionKey: "Error Searching Flickr\nPlease backout to main map and try again"]
@@ -180,20 +177,11 @@ class FlickrClient {
                 if data == nil {
                     return
                 }
-                // TODO this will cause a deadlock 
-                // If I use self.coreData?.saveBackgroundContext()
-                // I will be recursivley calling backgroundContext.performAndWait()
-                
-                // If I don't use self.coreData!.backgroundContext.performAndWait()
-                // I may be able to change the code to use self.coreData?.saveBackgroundContext()
-                // todo that I need to remove the outer performAndWait code
-                // then uncomment my saveBackgroundContext() line.
-                self.coreData!.backgroundContext.performAndWait(){
+                self.coreData!.backgroundContext.perform(){
                     let photoForUpdate = self.coreData!.backgroundContext.object(with: updateManagedObjectID) as! Photo
                     let outputData : Data = UIImagePNGRepresentation(UIImage(data: data!)!)!
                     photoForUpdate.setImage(outputData)
                     do {
-                        //TODO try self.coreData?.saveBackgroundContext()
                         try self.coreData!.backgroundContext.save()
                     }
                     catch {
@@ -228,7 +216,6 @@ class FlickrClient {
     // MARK: Utilities
     
     fileprivate func constructImageURL(_ photo: [String : AnyObject]) -> URL {
-        print("photo:\n\(photo)")
         let farm = photo[Constants.FlickrURLConstructValue.Farm]!
         let server = photo[Constants.FlickrURLConstructValue.Server]!
         let secret = photo[Constants.FlickrURLConstructValue.Secret]!

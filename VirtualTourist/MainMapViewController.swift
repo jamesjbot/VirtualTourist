@@ -71,7 +71,6 @@ class MainMapViewController: UIViewController, MKMapViewDelegate, NSFetchedResul
         // Always set a pin down when user presses down
         // When the pin state is changed delete old pin and replace with new pin
         // When user release drop the pin and save it to the database
-        print(sender.state.rawValue)
         switch sender.state {
         case UIGestureRecognizerState.began:
             // Set floating annotation
