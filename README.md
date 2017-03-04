@@ -15,7 +15,7 @@ Download the app, and run in Xcode simulator
 * Basic usage  
    Hold down and drag the pin on the map to a point you want to see photo centered around.  
    Click the pin to see a collection of images
-* Deleting pins
+* Deleting pins  
    Click edit then click on pins to delete them, click edit to exit this mode.  
 * Collection View usage
    You can delete photos by clicking on them and hitting the delete button.  
