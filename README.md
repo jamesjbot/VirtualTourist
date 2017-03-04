@@ -17,7 +17,7 @@ Download the app, and run in Xcode simulator
    Click the pin to see a collection of images
 * Deleting pins  
    Click edit then click on pins to delete them, click edit to exit this mode.  
-* Collection View usage
+* Collection View usage  
    You can delete photos by clicking on them and hitting the delete button.  
    If you want a whole new batch of images click New Collection.   
 * Optional  
